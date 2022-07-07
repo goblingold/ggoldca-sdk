@@ -268,6 +268,7 @@ export class GGoldcaSDK {
     const { lpAmount, maxAmountA, maxAmountB, userSigner, poolId, position } =
       params;
 
+    const positionAccounts = await this.getPositionAccounts(position);
     const accounts = await this.depositWithdrawAccounts(
       userSigner,
       poolId,
@@ -296,6 +297,55 @@ export class GGoldcaSDK {
       .withdraw(lpAmount, minAmountA, minAmountB)
       .accounts(accounts)
       .instruction();
+  }
+
+  async getPositionAccounts(
+    position: web3.PublicKey
+  ): Promise<PositionAccounts> {
+    const positionData = await this.fetcher.getWhirlpoolPositionData(position);
+    const poolData = await this.fetcher.getWhirlpoolData(
+      positionData.whirlpool
+    );
+
+    const { vaultAccount } = await this.pdaAccounts.getVaultKeys(
+      positionData.whirlpool
+    );
+
+    const positionTokenAccount = await getAssociatedTokenAddress(
+      positionData.positionMint,
+      vaultAccount,
+      true
+    );
+
+    const startTickLower = wh.TickUtil.getStartTickIndex(
+      positionData.tickLowerIndex,
+      poolData.tickSpacing
+    );
+
+    const startTickUpper = wh.TickUtil.getStartTickIndex(
+      positionData.tickUpperIndex,
+      poolData.tickSpacing
+    );
+
+    const tickArrayLowerPda = wh.PDAUtil.getTickArray(
+      wh.ORCA_WHIRLPOOL_PROGRAM_ID,
+      positionData.whirlpool,
+      startTickLower
+    );
+
+    const tickArrayUpperPda = wh.PDAUtil.getTickArray(
+      wh.ORCA_WHIRLPOOL_PROGRAM_ID,
+      positionData.whirlpool,
+      startTickUpper
+    );
+
+    return {
+      whirlpool: positionData.whirlpool,
+      position,
+      positionTokenAccount,
+      tickArrayLower: tickArrayLowerPda.publicKey,
+      tickArrayUpper: tickArrayUpperPda.publicKey,
+    };
   }
 
   async depositWithdrawAccounts(
