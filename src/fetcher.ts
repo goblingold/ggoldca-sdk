@@ -1,30 +1,59 @@
-import { AccountFetcher, WhirlpoolData } from "@orca-so/whirlpools-sdk";
-import { web3 } from "@project-serum/anchor";
-
-interface CachedData {
-  whirlpool: Record<string, WhirlpoolData>;
-}
+import { ParsableWhirlpool, WhirlpoolData } from "@orca-so/whirlpools-sdk";
+import { utils, web3 } from "@project-serum/anchor";
+import { MintLayout, RawMint } from "@solana/spl-token-v2";
 
 export class Fetcher {
-  connection: web3.Connection;
-
-  cached: CachedData = {
-    whirlpool: {},
-  };
+  private connection: web3.Connection;
+  cached: Map<string, Buffer>;
 
   public constructor(connection: web3.Connection) {
     this.connection = connection;
+    this.cached = new Map<string, Buffer>();
+  }
+
+  async getMint(pubkey: web3.PublicKey): Promise<RawMint> {
+    const buffer = await this.getOrFetchBuffer(pubkey);
+    return MintLayout.decode(buffer);
   }
 
   async getWhirlpoolData(poolId: web3.PublicKey): Promise<WhirlpoolData> {
-    const key = poolId.toString();
-    if (!this.cached.whirlpool[key]) {
-      const fetcher = new AccountFetcher(this.connection);
-      const poolData = await fetcher.getPool(poolId);
-
-      if (!poolData) throw new Error("Cannot fetch pool " + key);
-      this.cached.whirlpool[key] = poolData;
+    const buffer = await this.getOrFetchBuffer(poolId);
+    const pool = ParsableWhirlpool.parse(buffer);
+    if (!pool) {
+      throw new Error(
+        "Cannot decode " + poolId.toString() + " as WhirlpoolData"
+      );
     }
-    return this.cached.whirlpool[key];
+    return pool;
+  }
+
+  async save(pubkeys: web3.PublicKey[]) {
+    const notCached = pubkeys.filter((p) => !this.cached.has(p.toString()));
+    if (notCached.length) await this.fetchAndSave(notCached);
+  }
+
+  private async getOrFetchBuffer(pubkey: web3.PublicKey): Promise<Buffer> {
+    let key = pubkey.toString();
+    let buffer = this.cached.get(key);
+    if (!buffer) {
+      await this.save([pubkey]);
+      buffer = this.cached.get(key)!;
+    }
+    return buffer;
+  }
+
+  private async fetchAndSave(pubkeys: web3.PublicKey[]) {
+    const accountInfos = await utils.rpc.getMultipleAccounts(
+      this.connection,
+      pubkeys
+    );
+
+    accountInfos.forEach((info, i) => {
+      const key = pubkeys[i].toString();
+      const data = info?.account.data;
+
+      if (!data) throw new Error("Cannot fetch " + key);
+      this.cached.set(key, data);
+    });
   }
 }

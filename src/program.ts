@@ -172,23 +172,13 @@ export class GGoldcaSDK {
     const { lowerPrice, upperPrice, userSigner, poolId, positionMint } = params;
 
     const poolData = await this.fetcher.getWhirlpoolData(poolId);
-    const fetcher = new wh.AccountFetcher(this.connection);
 
-    const [tokenMintAInfo, tokenMintBInfo] =
-      await utils.rpc.getMultipleAccounts(this.connection, [
-        poolData.tokenMintA,
-        poolData.tokenMintB,
-      ]);
-
-    if (!tokenMintAInfo) {
-      throw new Error("Cannot fetch" + poolData.tokenMintA.toString());
-    }
-    if (!tokenMintBInfo) {
-      throw new Error("Cannot fetch" + poolData.tokenMintB.toString());
-    }
-
-    const mintA = MintLayout.decode(tokenMintAInfo.account.data);
-    const mintB = MintLayout.decode(tokenMintBInfo.account.data);
+    await this.fetcher.save([poolData.tokenMintA, poolData.tokenMintB]);
+    const [mintA, mintB] = await Promise.all(
+      [poolData.tokenMintA, poolData.tokenMintB].map((key) =>
+        this.fetcher.getMint(key)
+      )
+    );
 
     const tokenADecimal = mintA.decimals;
     const tokenBDecimal = mintB.decimals;
