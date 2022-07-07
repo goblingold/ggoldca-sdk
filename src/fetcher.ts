@@ -32,7 +32,9 @@ export class Fetcher {
     return pool;
   }
 
-  async getWhirlpoolPositionData(pubkey: web3.PublicKey): Promise<PositionData> {
+  async getWhirlpoolPositionData(
+    pubkey: web3.PublicKey
+  ): Promise<PositionData> {
     const buffer = await this.getOrFetchBuffer(pubkey);
     const data = ParsablePosition.parse(buffer);
     if (!data) {
@@ -49,7 +51,7 @@ export class Fetcher {
   }
 
   private async getOrFetchBuffer(pubkey: web3.PublicKey): Promise<Buffer> {
-    let key = pubkey.toString();
+    const key = pubkey.toString();
     let buffer = this.cached.get(key);
     if (!buffer) {
       await this.save([pubkey]);

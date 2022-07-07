@@ -1,15 +1,7 @@
 import * as wh from "@orca-so/whirlpools-sdk";
-import {
-  AnchorProvider,
-  BN,
-  Idl,
-  Program,
-  utils,
-  web3,
-} from "@project-serum/anchor";
+import { AnchorProvider, BN, Idl, Program, web3 } from "@project-serum/anchor";
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
-  MintLayout,
   TOKEN_PROGRAM_ID,
   createAssociatedTokenAccountInstruction,
   getAssociatedTokenAddress,
@@ -41,7 +33,6 @@ interface DepositParams {
   maxAmountA: BN;
   maxAmountB: BN;
   userSigner: web3.PublicKey;
-  poolId: web3.PublicKey;
   position: web3.PublicKey;
 }
 
@@ -50,8 +41,7 @@ interface WithdrawParams {
   minAmountA: BN;
   minAmountB: BN;
   userSigner: web3.PublicKey;
-  poolId: web3.PublicKey;
-  position: PositionAccounts;
+  position: web3.PublicKey;
 }
 
 interface DepositWithdrawAccounts {
@@ -265,13 +255,11 @@ export class GGoldcaSDK {
   }
 
   async depositIx(params: DepositParams): Promise<web3.TransactionInstruction> {
-    const { lpAmount, maxAmountA, maxAmountB, userSigner, poolId, position } =
-      params;
+    const { lpAmount, maxAmountA, maxAmountB, userSigner, position } = params;
 
     const positionAccounts = await this.getPositionAccounts(position);
     const accounts = await this.depositWithdrawAccounts(
       userSigner,
-      poolId,
       positionAccounts
     );
 
@@ -284,13 +272,12 @@ export class GGoldcaSDK {
   async withdrawIx(
     params: WithdrawParams
   ): Promise<web3.TransactionInstruction> {
-    const { lpAmount, minAmountA, minAmountB, userSigner, poolId, position } =
-      params;
+    const { lpAmount, minAmountA, minAmountB, userSigner, position } = params;
 
+    const positionAccounts = await this.getPositionAccounts(position);
     const accounts = await this.depositWithdrawAccounts(
       userSigner,
-      poolId,
-      position
+      positionAccounts
     );
 
     return this.program.methods
@@ -349,10 +336,10 @@ export class GGoldcaSDK {
   }
 
   async depositWithdrawAccounts(
-    userSigner,
-    poolId,
-    position
+    userSigner: web3.PublicKey,
+    position: PositionAccounts
   ): Promise<DepositWithdrawAccounts> {
+    const poolId = position.whirlpool;
     const poolData = await this.fetcher.getWhirlpoolData(poolId);
 
     const {
