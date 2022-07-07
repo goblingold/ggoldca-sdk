@@ -1,0 +1,748 @@
+{
+  "version": "0.1.0",
+  "name": "ggoldca",
+  "instructions": [
+    {
+      "name": "initializeVault",
+      "accounts": [
+        {
+          "name": "userSigner",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "whirlpool",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "inputTokenAMintAddress",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "inputTokenBMintAddress",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "vaultAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "vaultInputTokenAAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "vaultInputTokenBAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "vaultLpTokenMintPubkey",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "daoTreasuryLpTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "daoTreasuryOwner",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "associatedTokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "rent",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "openPosition",
+      "accounts": [
+        {
+          "name": "userSigner",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "vaultAccount",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "whirlpoolProgramId",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "position",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "positionMint",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "positionTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "whirlpool",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "rent",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "associatedTokenProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "bump",
+          "type": "u8"
+        },
+        {
+          "name": "tickLowerIndex",
+          "type": "i32"
+        },
+        {
+          "name": "tickUpperIndex",
+          "type": "i32"
+        }
+      ]
+    },
+    {
+      "name": "deposit",
+      "accounts": [
+        {
+          "name": "userSigner",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "vaultAccount",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "vaultLpTokenMintPubkey",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "vaultInputTokenAAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "vaultInputTokenBAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "userLpTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "userTokenAAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "userTokenBAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "whirlpoolProgramId",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "position",
+          "accounts": [
+            {
+              "name": "whirlpool",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "position",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "positionTokenAccount",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "tickArrayLower",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "tickArrayUpper",
+              "isMut": true,
+              "isSigner": false
+            }
+          ]
+        },
+        {
+          "name": "whTokenVaultA",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "whTokenVaultB",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "lpAmount",
+          "type": "u64"
+        },
+        {
+          "name": "maxAmountA",
+          "type": "u64"
+        },
+        {
+          "name": "maxAmountB",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "withdraw",
+      "accounts": [
+        {
+          "name": "userSigner",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "vaultAccount",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "vaultLpTokenMintPubkey",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "vaultInputTokenAAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "vaultInputTokenBAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "userLpTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "userTokenAAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "userTokenBAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "whirlpoolProgramId",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "position",
+          "accounts": [
+            {
+              "name": "whirlpool",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "position",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "positionTokenAccount",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "tickArrayLower",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "tickArrayUpper",
+              "isMut": true,
+              "isSigner": false
+            }
+          ]
+        },
+        {
+          "name": "whTokenVaultA",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "whTokenVaultB",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "lpAmount",
+          "type": "u64"
+        },
+        {
+          "name": "minAmountA",
+          "type": "u64"
+        },
+        {
+          "name": "minAmountB",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "collectFeesAndRewards",
+      "accounts": [
+        {
+          "name": "userSigner",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "vaultAccount",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "whirlpoolProgramId",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenOwnerAccountA",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenOwnerAccountB",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenVaultA",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenVaultB",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "position",
+          "accounts": [
+            {
+              "name": "whirlpool",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "position",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "positionTokenAccount",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "tickArrayLower",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "tickArrayUpper",
+              "isMut": true,
+              "isSigner": false
+            }
+          ]
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "rebalance",
+      "accounts": [
+        {
+          "name": "userSigner",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "vaultAccount",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "vaultInputTokenAAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "vaultInputTokenBAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "whirlpoolProgramId",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenVaultA",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenVaultB",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "currentPosition",
+          "accounts": [
+            {
+              "name": "whirlpool",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "position",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "positionTokenAccount",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "tickArrayLower",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "tickArrayUpper",
+              "isMut": true,
+              "isSigner": false
+            }
+          ]
+        },
+        {
+          "name": "newPosition",
+          "accounts": [
+            {
+              "name": "whirlpool",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "position",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "positionTokenAccount",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "tickArrayLower",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "tickArrayUpper",
+              "isMut": true,
+              "isSigner": false
+            }
+          ]
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "swap",
+      "accounts": [
+        {
+          "name": "userSigner",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "vaultAccount",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "whirlpoolProgramId",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenAuthority",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "whirlpool",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenOwnerAccountA",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenVaultA",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenOwnerAccountB",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenVaultB",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tickArray0",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tickArray1",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tickArray2",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "oracle",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        },
+        {
+          "name": "otherAmountThreshold",
+          "type": "u64"
+        },
+        {
+          "name": "sqrtPriceLimit",
+          "type": "u128"
+        },
+        {
+          "name": "amountSpecifiedIsInput",
+          "type": "bool"
+        },
+        {
+          "name": "aToB",
+          "type": "bool"
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "VaultAccount",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bumps",
+            "type": {
+              "defined": "Bumps"
+            }
+          },
+          {
+            "name": "whirlpoolId",
+            "type": "publicKey"
+          },
+          {
+            "name": "inputTokenAMintPubkey",
+            "type": "publicKey"
+          },
+          {
+            "name": "inputTokenBMintPubkey",
+            "type": "publicKey"
+          },
+          {
+            "name": "daoTreasuryLpTokenAccount",
+            "type": "publicKey"
+          }
+        ]
+      }
+    }
+  ],
+  "types": [
+    {
+      "name": "Bumps",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "vault",
+            "type": "u8"
+          },
+          {
+            "name": "lpTokenMint",
+            "type": "u8"
+          }
+        ]
+      }
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "MathOverflowAdd",
+      "msg": "Math overflow during add"
+    },
+    {
+      "code": 6001,
+      "name": "MathOverflowSub",
+      "msg": "Math overflow during sub"
+    },
+    {
+      "code": 6002,
+      "name": "MathOverflowMul",
+      "msg": "Math overflow during mul"
+    },
+    {
+      "code": 6003,
+      "name": "MathZeroDivision",
+      "msg": "Math division by zero"
+    },
+    {
+      "code": 6004,
+      "name": "MathOverflowConversion",
+      "msg": "Math overflow during type conversion"
+    },
+    {
+      "code": 6005,
+      "name": "ExceededTokenMax",
+      "msg": "Exceeded token max"
+    },
+    {
+      "code": 6006,
+      "name": "InvalidRemainingAccounts",
+      "msg": "Invalid number remaining accounts"
+    },
+    {
+      "code": 6007,
+      "name": "InvalidInputMint",
+      "msg": "Invalid input token mint pubkey"
+    }
+  ],
+  "metadata": {
+    "address": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+  }
+}
