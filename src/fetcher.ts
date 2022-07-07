@@ -1,4 +1,9 @@
-import { ParsableWhirlpool, WhirlpoolData } from "@orca-so/whirlpools-sdk";
+import {
+  ParsablePosition,
+  ParsableWhirlpool,
+  PositionData,
+  WhirlpoolData,
+} from "@orca-so/whirlpools-sdk";
 import { utils, web3 } from "@project-serum/anchor";
 import { MintLayout, RawMint } from "@solana/spl-token-v2";
 
@@ -25,6 +30,17 @@ export class Fetcher {
       );
     }
     return pool;
+  }
+
+  async getWhirlpoolPositionData(pubkey: web3.PublicKey): Promise<PositionData> {
+    const buffer = await this.getOrFetchBuffer(pubkey);
+    const data = ParsablePosition.parse(buffer);
+    if (!data) {
+      throw new Error(
+        "Cannot decode " + pubkey.toString() + " as WhPositionData"
+      );
+    }
+    return data;
   }
 
   async save(pubkeys: web3.PublicKey[]) {

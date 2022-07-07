@@ -42,7 +42,7 @@ interface DepositParams {
   maxAmountB: BN;
   userSigner: web3.PublicKey;
   poolId: web3.PublicKey;
-  position: PositionAccounts;
+  position: web3.PublicKey;
 }
 
 interface WithdrawParams {
@@ -166,9 +166,7 @@ export class GGoldcaSDK {
     return tx;
   }
 
-  async openPositionIx(
-    params: OpenPositionParams
-  ): Promise<web3.TransactionInstruction> {
+  async openPositionTx(params: OpenPositionParams): Promise<web3.Transaction> {
     const { lowerPrice, upperPrice, userSigner, poolId, positionMint } = params;
 
     const poolData = await this.fetcher.getWhirlpoolData(poolId);
@@ -205,6 +203,48 @@ export class GGoldcaSDK {
       true
     );
 
+    const startTickLower = wh.TickUtil.getStartTickIndex(
+      tickLower,
+      poolData.tickSpacing
+    );
+
+    const startTickUpper = wh.TickUtil.getStartTickIndex(
+      tickUpper,
+      poolData.tickSpacing
+    );
+
+    const tickArrayLowerPda = wh.PDAUtil.getTickArray(
+      wh.ORCA_WHIRLPOOL_PROGRAM_ID,
+      poolId,
+      startTickLower
+    );
+
+    const tickArrayUpperPda = wh.PDAUtil.getTickArray(
+      wh.ORCA_WHIRLPOOL_PROGRAM_ID,
+      poolId,
+      startTickUpper
+    );
+
+    const ctx = wh.WhirlpoolContext.withProvider(
+      this.program.provider,
+      wh.ORCA_WHIRLPOOL_PROGRAM_ID
+    );
+
+    // TODO only create if not exists
+    const initTickLowerIx = wh.WhirlpoolIx.initTickArrayIx(ctx.program, {
+      startTick: startTickLower,
+      tickArrayPda: tickArrayLowerPda,
+      whirlpool: poolId,
+      funder: userSigner,
+    });
+
+    const initTickUpperIx = wh.WhirlpoolIx.initTickArrayIx(ctx.program, {
+      startTick: startTickUpper,
+      tickArrayPda: tickArrayUpperPda,
+      whirlpool: poolId,
+      funder: userSigner,
+    });
+
     return this.program.methods
       .openPosition(positionPda.bump, tickLower, tickUpper)
       .accounts({
@@ -220,7 +260,8 @@ export class GGoldcaSDK {
         rent: web3.SYSVAR_RENT_PUBKEY,
         associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
       })
-      .instruction();
+      .preInstructions([initTickLowerIx, initTickUpperIx])
+      .transaction();
   }
 
   async depositIx(params: DepositParams): Promise<web3.TransactionInstruction> {
@@ -230,7 +271,7 @@ export class GGoldcaSDK {
     const accounts = await this.depositWithdrawAccounts(
       userSigner,
       poolId,
-      position
+      positionAccounts
     );
 
     return this.program.methods
