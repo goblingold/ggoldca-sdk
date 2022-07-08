@@ -44,6 +44,16 @@ interface WithdrawParams {
   position: web3.PublicKey;
 }
 
+interface CollectFeesParams {
+  userSigner: web3.PublicKey;
+  position: web3.PublicKey;
+}
+
+interface CollectRewardsParams {
+  userSigner: web3.PublicKey;
+  position: web3.PublicKey;
+}
+
 interface DepositWithdrawAccounts {
   userSigner: web3.PublicKey;
   vaultAccount: web3.PublicKey;
@@ -284,6 +294,79 @@ export class GGoldcaSDK {
       .withdraw(lpAmount, minAmountA, minAmountB)
       .accounts(accounts)
       .instruction();
+  }
+
+  async collectFeesIx(
+    params: CollectFeesParams
+  ): Promise<web3.TransactionInstruction> {
+    const { userSigner, position } = params;
+
+    const positionData = await this.fetcher.getWhirlpoolPositionData(position);
+    const poolData = await this.fetcher.getWhirlpoolData(
+      positionData.whirlpool
+    );
+
+    const positionAccounts = await this.getPositionAccounts(position);
+    const { vaultAccount, vaultInputTokenAAccount, vaultInputTokenBAccount } =
+      await this.pdaAccounts.getVaultKeys(positionData.whirlpool);
+
+    return this.program.methods
+      .collectFees()
+      .accounts({
+        userSigner,
+        vaultAccount,
+        whirlpoolProgramId: wh.ORCA_WHIRLPOOL_PROGRAM_ID,
+        vaultInputTokenAAccount,
+        vaultInputTokenBAccount,
+        tokenVaultA: poolData.tokenVaultA,
+        tokenVaultB: poolData.tokenVaultB,
+        position: positionAccounts,
+        tokenProgram: TOKEN_PROGRAM_ID,
+      })
+      .instruction();
+  }
+
+  async collectRewardsIxs(
+    params: CollectRewardsParams
+  ): Promise<web3.TransactionInstruction[]> {
+    const { userSigner, position } = params;
+
+    const positionData = await this.fetcher.getWhirlpoolPositionData(position);
+    const poolData = await this.fetcher.getWhirlpoolData(
+      positionData.whirlpool
+    );
+
+    const positionAccounts = await this.getPositionAccounts(position);
+    const { vaultAccount } = await this.pdaAccounts.getVaultKeys(
+      positionData.whirlpool
+    );
+
+    const rewardInfos = poolData.rewardInfos.filter(
+      (info) => info.mint.toString() !== web3.PublicKey.default.toString()
+    );
+
+    const vaultRewardsTokenAccounts = await Promise.all(
+      rewardInfos.map(async (info) =>
+        getAssociatedTokenAddress(info.mint, vaultAccount, true)
+      )
+    );
+
+    return Promise.all(
+      rewardInfos.map(async (info, indx) => {
+        return this.program.methods
+          .collectRewards(indx)
+          .accounts({
+            userSigner,
+            vaultAccount,
+            rewardVault: info.vault,
+            vaultRewardsTokenAccount: vaultRewardsTokenAccounts[indx],
+            whirlpoolProgramId: wh.ORCA_WHIRLPOOL_PROGRAM_ID,
+            position: positionAccounts,
+            tokenProgram: TOKEN_PROGRAM_ID,
+          })
+          .instruction();
+      })
+    );
   }
 
   async getPositionAccounts(

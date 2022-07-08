@@ -88,7 +88,7 @@
         },
         {
           "name": "vaultAccount",
-          "isMut": false,
+          "isMut": true,
           "isSigner": false
         },
         {
@@ -371,7 +371,7 @@
       ]
     },
     {
-      "name": "collectFeesAndRewards",
+      "name": "collectFees",
       "accounts": [
         {
           "name": "userSigner",
@@ -389,12 +389,12 @@
           "isSigner": false
         },
         {
-          "name": "tokenOwnerAccountA",
+          "name": "vaultInputTokenAAccount",
           "isMut": true,
           "isSigner": false
         },
         {
-          "name": "tokenOwnerAccountB",
+          "name": "vaultInputTokenBAccount",
           "isMut": true,
           "isSigner": false
         },
@@ -447,7 +447,7 @@
       "args": []
     },
     {
-      "name": "rebalance",
+      "name": "collectRewards",
       "accounts": [
         {
           "name": "userSigner",
@@ -457,6 +457,77 @@
         {
           "name": "vaultAccount",
           "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "vaultRewardsTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "rewardVault",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "whirlpoolProgramId",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "position",
+          "accounts": [
+            {
+              "name": "whirlpool",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "position",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "positionTokenAccount",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "tickArrayLower",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "tickArrayUpper",
+              "isMut": true,
+              "isSigner": false
+            }
+          ]
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "rewardIndex",
+          "type": "u8"
+        }
+      ]
+    },
+    {
+      "name": "rebalance",
+      "accounts": [
+        {
+          "name": "userSigner",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "vaultAccount",
+          "isMut": true,
           "isSigner": false
         },
         {
@@ -677,6 +748,14 @@
           {
             "name": "daoTreasuryLpTokenAccount",
             "type": "publicKey"
+          },
+          {
+            "name": "positions",
+            "type": {
+              "vec": {
+                "defined": "PositionInfo"
+              }
+            }
           }
         ]
       }
@@ -695,6 +774,26 @@
           {
             "name": "lpTokenMint",
             "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PositionInfo",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "pubkey",
+            "type": "publicKey"
+          },
+          {
+            "name": "lowerTick",
+            "type": "i32"
+          },
+          {
+            "name": "upperTick",
+            "type": "i32"
           }
         ]
       }
@@ -740,6 +839,21 @@
       "code": 6007,
       "name": "InvalidInputMint",
       "msg": "Invalid input token mint pubkey"
+    },
+    {
+      "code": 6008,
+      "name": "PositionAlreadyOpened",
+      "msg": "Position already opened"
+    },
+    {
+      "code": 6009,
+      "name": "PositionLimitReached",
+      "msg": "Position limit reached"
+    },
+    {
+      "code": 6010,
+      "name": "PositionNotActive",
+      "msg": "Position does not exist or is not active"
     }
   ],
   "metadata": {
