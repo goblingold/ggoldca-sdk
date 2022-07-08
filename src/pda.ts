@@ -83,11 +83,11 @@ export class PDAAccounts {
     position: web3.PublicKey
   ): Promise<PositionAccounts> {
     const positionData = await this.fetcher.getWhirlpoolPositionData(position);
-    const poolData = await this.fetcher.getWhirlpoolData(
-      positionData.whirlpool
-    );
 
-    const { vaultAccount } = await this.getVaultKeys(positionData.whirlpool);
+    const [poolData, { vaultAccount }] = await Promise.all([
+      this.fetcher.getWhirlpoolData(positionData.whirlpool),
+      this.getVaultKeys(positionData.whirlpool),
+    ]);
 
     const positionTokenAccount = await getAssociatedTokenAddress(
       positionData.positionMint,
@@ -128,9 +128,11 @@ export class PDAAccounts {
 
   async getDepositWithdrawAccounts(
     userSigner: web3.PublicKey,
-    position: PositionAccounts
+    position: web3.PublicKey,
   ): Promise<DepositWithdrawAccounts> {
-    const poolId = position.whirlpool;
+    const positionAccounts = await this.getPositionAccounts(position);
+
+    const poolId = positionAccounts.whirlpool;
     const poolData = await this.fetcher.getWhirlpoolData(poolId);
 
     const {
@@ -157,7 +159,7 @@ export class PDAAccounts {
       userTokenAAccount,
       userTokenBAccount,
       whirlpoolProgramId: wh.ORCA_WHIRLPOOL_PROGRAM_ID,
-      position,
+      position: positionAccounts,
       whTokenVaultA: poolData.tokenVaultA,
       whTokenVaultB: poolData.tokenVaultB,
       tokenProgram: TOKEN_PROGRAM_ID,

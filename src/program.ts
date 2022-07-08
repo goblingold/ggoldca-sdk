@@ -243,12 +243,9 @@ export class GGoldcaSDK {
   async depositIx(params: DepositParams): Promise<web3.TransactionInstruction> {
     const { lpAmount, maxAmountA, maxAmountB, userSigner, position } = params;
 
-    const positionAccounts = await this.pdaAccounts.getPositionAccounts(
-      position
-    );
     const accounts = await this.pdaAccounts.getDepositWithdrawAccounts(
       userSigner,
-      positionAccounts
+      position
     );
 
     return this.program.methods
@@ -262,12 +259,9 @@ export class GGoldcaSDK {
   ): Promise<web3.TransactionInstruction> {
     const { lpAmount, minAmountA, minAmountB, userSigner, position } = params;
 
-    const positionAccounts = await this.pdaAccounts.getPositionAccounts(
-      position
-    );
     const accounts = await this.pdaAccounts.getDepositWithdrawAccounts(
       userSigner,
-      positionAccounts
+      position
     );
 
     return this.program.methods
@@ -286,11 +280,13 @@ export class GGoldcaSDK {
       positionData.whirlpool
     );
 
-    const positionAccounts = await this.pdaAccounts.getPositionAccounts(
-      position
-    );
-    const { vaultAccount, vaultInputTokenAAccount, vaultInputTokenBAccount } =
-      await this.pdaAccounts.getVaultKeys(positionData.whirlpool);
+    const [
+      positionAccounts,
+      { vaultAccount, vaultInputTokenAAccount, vaultInputTokenBAccount },
+    ] = await Promise.all([
+      this.pdaAccounts.getPositionAccounts(position),
+      this.pdaAccounts.getVaultKeys(positionData.whirlpool),
+    ]);
 
     return this.program.methods
       .collectFees()
@@ -318,12 +314,10 @@ export class GGoldcaSDK {
       positionData.whirlpool
     );
 
-    const positionAccounts = await this.pdaAccounts.getPositionAccounts(
-      position
-    );
-    const { vaultAccount } = await this.pdaAccounts.getVaultKeys(
-      positionData.whirlpool
-    );
+    const [positionAccounts, { vaultAccount }] = await Promise.all([
+      this.pdaAccounts.getPositionAccounts(position),
+      this.pdaAccounts.getVaultKeys(positionData.whirlpool),
+    ]);
 
     const rewardInfos = poolData.rewardInfos.filter(
       (info) => info.mint.toString() !== web3.PublicKey.default.toString()
