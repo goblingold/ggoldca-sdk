@@ -33,7 +33,7 @@ interface DepositParams {
   maxAmountA: BN;
   maxAmountB: BN;
   userSigner: web3.PublicKey;
-  position: web3.PublicKey;
+  poolId: web3.PublicKey;
 }
 
 interface WithdrawParams {
@@ -41,7 +41,7 @@ interface WithdrawParams {
   minAmountA: BN;
   minAmountB: BN;
   userSigner: web3.PublicKey;
-  position: web3.PublicKey;
+  poolId: web3.PublicKey;
 }
 
 interface CollectFeesParams {
@@ -241,11 +241,11 @@ export class GGoldcaSDK {
   }
 
   async depositIx(params: DepositParams): Promise<web3.TransactionInstruction> {
-    const { lpAmount, maxAmountA, maxAmountB, userSigner, position } = params;
+    const { lpAmount, maxAmountA, maxAmountB, userSigner, poolId } = params;
 
     const accounts = await this.pdaAccounts.getDepositWithdrawAccounts(
       userSigner,
-      position
+      poolId
     );
 
     return this.program.methods
@@ -257,11 +257,11 @@ export class GGoldcaSDK {
   async withdrawIx(
     params: WithdrawParams
   ): Promise<web3.TransactionInstruction> {
-    const { lpAmount, minAmountA, minAmountB, userSigner, position } = params;
+    const { lpAmount, minAmountA, minAmountB, userSigner, poolId } = params;
 
     const accounts = await this.pdaAccounts.getDepositWithdrawAccounts(
       userSigner,
-      position
+      poolId
     );
 
     return this.program.methods

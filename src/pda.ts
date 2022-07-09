@@ -126,22 +126,32 @@ export class PDAAccounts {
     };
   }
 
+  async getActivePosition(poolId: web3.PublicKey): Promise<web3.PublicKey> {
+    const { vaultAccount } = await this.getVaultKeys(poolId);
+    const vaultData = await this.fetcher.getVault(vaultAccount, true);
+    return vaultData["positions"][0]["pubkey"];
+  }
+
   async getDepositWithdrawAccounts(
     userSigner: web3.PublicKey,
-    position: web3.PublicKey,
+    poolId: web3.PublicKey
   ): Promise<DepositWithdrawAccounts> {
+    const [
+      {
+        vaultAccount,
+        vaultLpTokenMintPubkey,
+        vaultInputTokenAAccount,
+        vaultInputTokenBAccount,
+      },
+      position,
+      poolData,
+    ] = await Promise.all([
+      this.getVaultKeys(poolId),
+      this.getActivePosition(poolId),
+      this.fetcher.getWhirlpoolData(poolId),
+    ]);
+
     const positionAccounts = await this.getPositionAccounts(position);
-
-    const poolId = positionAccounts.whirlpool;
-    const poolData = await this.fetcher.getWhirlpoolData(poolId);
-
-    const {
-      vaultAccount,
-      vaultLpTokenMintPubkey,
-      vaultInputTokenAAccount,
-      vaultInputTokenBAccount,
-    } = await this.getVaultKeys(poolId);
-
     const [userLpTokenAccount, userTokenAAccount, userTokenBAccount] =
       await Promise.all(
         [vaultLpTokenMintPubkey, poolData.tokenMintA, poolData.tokenMintB].map(
