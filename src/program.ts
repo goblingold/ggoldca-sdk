@@ -1,5 +1,12 @@
 import * as wh from "@orca-so/whirlpools-sdk";
-import { AnchorProvider, BN, Idl, Program, web3 } from "@project-serum/anchor";
+import {
+  AnchorProvider,
+  BN,
+  Idl,
+  Program,
+  Provider,
+  web3,
+} from "@project-serum/anchor";
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
   TOKEN_PROGRAM_ID,
@@ -57,6 +64,7 @@ interface CollectRewardsParams {
 interface ConstructorParams {
   programId: web3.PublicKey;
   connection: web3.Connection;
+  provider: Provider;
 }
 
 export class GGoldcaSDK {
@@ -66,7 +74,7 @@ export class GGoldcaSDK {
   pdaAccounts: PDAAccounts;
 
   public constructor(params: ConstructorParams) {
-    const { programId, connection } = params;
+    const { programId, connection, provider } = params;
 
     this.connection = connection;
     this.fetcher = new Fetcher(connection);
@@ -74,7 +82,7 @@ export class GGoldcaSDK {
     this.program = new Program(
       IDL as Idl,
       programId,
-      null as unknown as AnchorProvider
+      provider ? provider : (null as unknown as AnchorProvider)
     );
   }
 
