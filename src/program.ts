@@ -296,6 +296,11 @@ export class GGoldcaSDK {
       this.pdaAccounts.getVaultKeys(positionData.whirlpool),
     ]);
 
+    const [treasuryTokenAAccount, treasuryTokenBAccount] = await Promise.all([
+      getAssociatedTokenAddress(poolData.tokenMintA, DAO_TREASURY_PUBKEY),
+      getAssociatedTokenAddress(poolData.tokenMintB, DAO_TREASURY_PUBKEY),
+    ]);
+
     return this.program.methods
       .collectFees()
       .accounts({
@@ -304,6 +309,8 @@ export class GGoldcaSDK {
         whirlpoolProgramId: wh.ORCA_WHIRLPOOL_PROGRAM_ID,
         vaultInputTokenAAccount,
         vaultInputTokenBAccount,
+        treasuryTokenAAccount,
+        treasuryTokenBAccount,
         tokenVaultA: poolData.tokenVaultA,
         tokenVaultB: poolData.tokenVaultB,
         position: positionAccounts,
@@ -337,6 +344,12 @@ export class GGoldcaSDK {
       )
     );
 
+    const treasuryRewardsTokenAccounts = await Promise.all(
+      rewardInfos.map(async (info) =>
+        getAssociatedTokenAddress(info.mint, DAO_TREASURY_PUBKEY)
+      )
+    );
+
     return Promise.all(
       rewardInfos.map(async (info, indx) => {
         return this.program.methods
@@ -346,6 +359,7 @@ export class GGoldcaSDK {
             vaultAccount,
             rewardVault: info.vault,
             vaultRewardsTokenAccount: vaultRewardsTokenAccounts[indx],
+            treasuryRewardsTokenAccount: treasuryRewardsTokenAccounts[indx],
             whirlpoolProgramId: wh.ORCA_WHIRLPOOL_PROGRAM_ID,
             position: positionAccounts,
             tokenProgram: TOKEN_PROGRAM_ID,
