@@ -46,16 +46,6 @@
           "isSigner": false
         },
         {
-          "name": "daoTreasuryLpTokenAccount",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "daoTreasuryOwner",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
           "name": "systemProgram",
           "isMut": false,
           "isSigner": false
@@ -854,10 +844,6 @@
           },
           {
             "name": "inputTokenBMintPubkey",
-            "type": "publicKey"
-          },
-          {
-            "name": "daoTreasuryLpTokenAccount",
             "type": "publicKey"
           },
           {

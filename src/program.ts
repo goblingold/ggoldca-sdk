@@ -5,6 +5,7 @@ import {
   Idl,
   Program,
   Provider,
+  utils,
   web3,
 } from "@project-serum/anchor";
 import {
@@ -86,9 +87,9 @@ export class GGoldcaSDK {
     );
   }
 
-  async initializeVaultTx(
+  async initializeVaultIxs(
     params: InitializeVaultParams
-  ): Promise<web3.Transaction> {
+  ): Promise<web3.TransactionInstruction[]> {
     const { poolId, userSigner } = params;
     const {
       vaultAccount,
@@ -99,13 +100,7 @@ export class GGoldcaSDK {
 
     const poolData = await this.fetcher.getWhirlpoolData(poolId);
 
-    const daoTreasuryLpTokenAccount = await getAssociatedTokenAddress(
-      vaultLpTokenMintPubkey,
-      DAO_TREASURY_PUBKEY,
-      false
-    );
-
-    const tx = await this.program.methods
+    const ix = await this.program.methods
       .initializeVault()
       .accounts({
         userSigner,
@@ -116,38 +111,59 @@ export class GGoldcaSDK {
         vaultLpTokenMintPubkey,
         vaultInputTokenAAccount,
         vaultInputTokenBAccount,
-        daoTreasuryLpTokenAccount,
-        daoTreasuryOwner: DAO_TREASURY_PUBKEY,
         systemProgram: web3.SystemProgram.programId,
         associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
         tokenProgram: TOKEN_PROGRAM_ID,
         rent: web3.SYSVAR_RENT_PUBKEY,
       })
-      .transaction();
+      .instruction();
 
-    // Create rewards ATAs
+    // Create vault_rewards ATAs
     const rewardMints = poolData.rewardInfos
       .map((info) => info.mint)
       .filter((k) => k.toString() !== web3.PublicKey.default.toString());
 
-    const rewardAccounts = await Promise.all(
+    const vaultRewardsAtas = await Promise.all(
       rewardMints.map(async (key) =>
         getAssociatedTokenAddress(key, vaultAccount, true)
       )
     );
 
-    rewardAccounts.forEach((pubkey, indx) => {
-      tx.add(
+    const ixVaultAtas = vaultRewardsAtas.map((pubkey, indx) =>
+      createAssociatedTokenAccountInstruction(
+        userSigner,
+        pubkey,
+        vaultAccount,
+        rewardMints[indx]
+      )
+    );
+
+    // Create non-existing treasury ATAs
+    const mints = [poolData.tokenMintA, poolData.tokenMintB, ...rewardMints];
+
+    const treasuryAtas = await Promise.all(
+      mints.map(async (key) =>
+        getAssociatedTokenAddress(key, DAO_TREASURY_PUBKEY)
+      )
+    );
+
+    const accInfos = await utils.rpc.getMultipleAccounts(
+      this.connection,
+      treasuryAtas
+    );
+
+    const ixTreasuryAtas = treasuryAtas
+      .map((pubkey, indx) =>
         createAssociatedTokenAccountInstruction(
           userSigner,
           pubkey,
-          vaultAccount,
-          rewardMints[indx]
+          DAO_TREASURY_PUBKEY,
+          mints[indx]
         )
-      );
-    });
+      )
+      .filter((ix, indx) => accInfos[indx] == null);
 
-    return tx;
+    return [ix, ...ixVaultAtas, ...ixTreasuryAtas];
   }
 
   async openPositionTx(params: OpenPositionParams): Promise<web3.Transaction> {
