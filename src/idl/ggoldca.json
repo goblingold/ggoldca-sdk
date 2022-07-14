@@ -723,103 +723,6 @@
         }
       ],
       "args": []
-    },
-    {
-      "name": "swap",
-      "accounts": [
-        {
-          "name": "userSigner",
-          "isMut": false,
-          "isSigner": true
-        },
-        {
-          "name": "vaultAccount",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "whirlpoolProgramId",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "tokenAuthority",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "whirlpool",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "tokenOwnerAccountA",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "tokenVaultA",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "tokenOwnerAccountB",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "tokenVaultB",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "tickArray0",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "tickArray1",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "tickArray2",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "oracle",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "tokenProgram",
-          "isMut": false,
-          "isSigner": false
-        }
-      ],
-      "args": [
-        {
-          "name": "amount",
-          "type": "u64"
-        },
-        {
-          "name": "otherAmountThreshold",
-          "type": "u64"
-        },
-        {
-          "name": "sqrtPriceLimit",
-          "type": "u128"
-        },
-        {
-          "name": "amountSpecifiedIsInput",
-          "type": "bool"
-        },
-        {
-          "name": "aToB",
-          "type": "bool"
-        }
-      ]
     }
   ],
   "accounts": [
@@ -857,6 +760,15 @@
           {
             "name": "accNonInvestedFeesB",
             "type": "u64"
+          },
+          {
+            "name": "padding",
+            "type": {
+              "array": [
+                "u64",
+                10
+              ]
+            }
           },
           {
             "name": "positions",
@@ -973,6 +885,11 @@
       "code": 6012,
       "name": "NotEnoughRewards",
       "msg": "Not enough rewards generated yet"
+    },
+    {
+      "code": 6013,
+      "name": "UnauthorizedUser",
+      "msg": "Unauthorized user"
     }
   ],
   "metadata": {
