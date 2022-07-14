@@ -166,7 +166,9 @@ export class GGoldcaSDK {
     return [ix, ...ixVaultAtas, ...ixTreasuryAtas];
   }
 
-  async openPositionTx(params: OpenPositionParams): Promise<web3.Transaction> {
+  async openPositionIxs(
+    params: OpenPositionParams
+  ): Promise<web3.TransactionInstruction[]> {
     const { lowerPrice, upperPrice, userSigner, poolId, positionMint } = params;
 
     const poolData = await this.fetcher.getWhirlpoolData(poolId);
@@ -203,49 +205,7 @@ export class GGoldcaSDK {
       true
     );
 
-    const startTickLower = wh.TickUtil.getStartTickIndex(
-      tickLower,
-      poolData.tickSpacing
-    );
-
-    const startTickUpper = wh.TickUtil.getStartTickIndex(
-      tickUpper,
-      poolData.tickSpacing
-    );
-
-    const tickArrayLowerPda = wh.PDAUtil.getTickArray(
-      wh.ORCA_WHIRLPOOL_PROGRAM_ID,
-      poolId,
-      startTickLower
-    );
-
-    const tickArrayUpperPda = wh.PDAUtil.getTickArray(
-      wh.ORCA_WHIRLPOOL_PROGRAM_ID,
-      poolId,
-      startTickUpper
-    );
-
-    const ctx = wh.WhirlpoolContext.withProvider(
-      this.program.provider,
-      wh.ORCA_WHIRLPOOL_PROGRAM_ID
-    );
-
-    // TODO only create if not exists
-    const initTickLowerIx = wh.WhirlpoolIx.initTickArrayIx(ctx.program, {
-      startTick: startTickLower,
-      tickArrayPda: tickArrayLowerPda,
-      whirlpool: poolId,
-      funder: userSigner,
-    });
-
-    const initTickUpperIx = wh.WhirlpoolIx.initTickArrayIx(ctx.program, {
-      startTick: startTickUpper,
-      tickArrayPda: tickArrayUpperPda,
-      whirlpool: poolId,
-      funder: userSigner,
-    });
-
-    return this.program.methods
+    const ix = await this.program.methods
       .openPosition(positionPda.bump, tickLower, tickUpper)
       .accounts({
         userSigner,
@@ -260,8 +220,20 @@ export class GGoldcaSDK {
         rent: web3.SYSVAR_RENT_PUBKEY,
         associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
       })
-      .preInstructions([initTickLowerIx, initTickUpperIx])
-      .transaction();
+      .instruction();
+
+    // Check the existence of the tick arrays
+    const ixs: web3.TransactionInstruction[] = [ix];
+
+    const [tickLowerIx, tickUpperIx] = await Promise.all([
+      this.createTickArrayIx(userSigner, poolId, tickLower),
+      this.createTickArrayIx(userSigner, poolId, tickUpper),
+    ]);
+
+    if (tickLowerIx != null) ixs.push(tickLowerIx);
+    if (tickUpperIx != null) ixs.push(tickUpperIx);
+
+    return ixs;
   }
 
   async depositIx(params: DepositParams): Promise<web3.TransactionInstruction> {
@@ -383,5 +355,43 @@ export class GGoldcaSDK {
           .instruction();
       })
     );
+  }
+
+  async createTickArrayIx(
+    userSigner: web3.PublicKey,
+    poolId: web3.PublicKey,
+    tickIndex: number
+  ): Promise<null | web3.TransactionInstruction> {
+    const poolData = await this.fetcher.getWhirlpoolData(poolId);
+
+    const startTick = wh.TickUtil.getStartTickIndex(
+      tickIndex,
+      poolData.tickSpacing
+    );
+
+    const tickArrayPda = wh.PDAUtil.getTickArray(
+      wh.ORCA_WHIRLPOOL_PROGRAM_ID,
+      poolId,
+      startTick
+    );
+
+    const [tickInfo] = await utils.rpc.getMultipleAccounts(this.connection, [
+      tickArrayPda.publicKey,
+    ]);
+
+    if (tickInfo == null) {
+      const ctx = wh.WhirlpoolContext.withProvider(
+        this.program.provider,
+        wh.ORCA_WHIRLPOOL_PROGRAM_ID
+      );
+      return wh.WhirlpoolIx.initTickArrayIx(ctx.program, {
+        startTick,
+        tickArrayPda,
+        whirlpool: poolId,
+        funder: userSigner,
+      }).instructions[0];
+    } else {
+      return null;
+    }
   }
 }
