@@ -23,6 +23,10 @@ const DAO_TREASURY_PUBKEY = new web3.PublicKey(
   "8XhNoDjjNoLP5Rys1pBJKGdE8acEC1HJsWGkfkMt6JP1"
 );
 
+const PROGRAM_ID = new web3.PublicKey(
+  "ECzqPRCK7S7jXeNWoc3QrYH6yWQkcQGpGR2RWqRQ9e9P"
+);
+
 interface InitializeVaultParams {
   userSigner: web3.PublicKey;
   poolId: web3.PublicKey;
@@ -63,9 +67,9 @@ interface CollectRewardsParams {
 }
 
 interface ConstructorParams {
-  programId: web3.PublicKey;
   connection: web3.Connection;
   provider: Provider;
+  programId?: web3.PublicKey;
 }
 
 export class GGoldcaSDK {
@@ -75,7 +79,8 @@ export class GGoldcaSDK {
   pdaAccounts: PDAAccounts;
 
   public constructor(params: ConstructorParams) {
-    const { programId, connection, provider } = params;
+    const { connection, provider } = params;
+    const programId = params.programId ? params.programId : PROGRAM_ID;
 
     this.connection = connection;
     this.fetcher = new Fetcher(connection);
