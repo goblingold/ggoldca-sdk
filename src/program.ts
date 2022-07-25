@@ -87,6 +87,11 @@ interface SellRewardsParams {
   poolId: web3.PublicKey;
 }
 
+interface ReinvestParams {
+  userSigner: web3.PublicKey;
+  poolId: web3.PublicKey;
+}
+
 interface ConstructorParams {
   connection: web3.Connection;
   provider: Provider;
@@ -437,6 +442,59 @@ export class GGoldcaSDK {
           .instruction()
       )
     );
+  }
+
+  async reinvestIx(
+    params: ReinvestParams
+  ): Promise<web3.TransactionInstruction> {
+    const { userSigner, poolId } = params;
+
+    const [
+      poolData,
+      position,
+      { vaultAccount, vaultInputTokenAAccount, vaultInputTokenBAccount },
+    ] = await Promise.all([
+      this.fetcher.getWhirlpoolData(poolId),
+      this.pdaAccounts.getActivePosition(poolId),
+      this.pdaAccounts.getVaultKeys(poolId),
+    ]);
+
+    const positionAccounts = await this.pdaAccounts.getPositionAccounts(
+      position
+    );
+
+    const oracleKeypair = wh.PDAUtil.getOracle(
+      wh.ORCA_WHIRLPOOL_PROGRAM_ID,
+      poolId
+    );
+
+    // TODO compute swap direction
+    const isAtoB = false;
+    const tickArrayAddresses = wh.PoolUtil.getTickArrayPublicKeysForSwap(
+      poolData.tickCurrentIndex,
+      poolData.tickSpacing,
+      isAtoB,
+      wh.ORCA_WHIRLPOOL_PROGRAM_ID,
+      positionAccounts.whirlpool
+    );
+
+    return this.program.methods
+      .reinvest()
+      .accounts({
+        userSigner,
+        vaultAccount,
+        whirlpoolProgramId: wh.ORCA_WHIRLPOOL_PROGRAM_ID,
+        vaultInputTokenAAccount,
+        vaultInputTokenBAccount,
+        tokenVaultA: poolData.tokenVaultA,
+        tokenVaultB: poolData.tokenVaultB,
+        position: positionAccounts,
+        tickArray0: tickArrayAddresses[0],
+        tickArray1: tickArrayAddresses[1],
+        tickArray2: tickArrayAddresses[2],
+        oracle: oracleKeypair.publicKey,
+      })
+      .instruction();
   }
 
   async createTickArrayIx(
