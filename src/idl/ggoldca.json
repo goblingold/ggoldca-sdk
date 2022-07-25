@@ -523,6 +523,72 @@
       ]
     },
     {
+      "name": "sellRewards",
+      "accounts": [
+        {
+          "name": "userSigner",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "vaultAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "vaultRewardsTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "vaultInputTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "orcaProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "pool",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "poolAuthority",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "poolSourceTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "poolDestinationTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "poolMintAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "poolFeeAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
+    },
+    {
       "name": "reinvest",
       "accounts": [
         {
@@ -754,11 +820,11 @@
             "type": "u128"
           },
           {
-            "name": "accNonInvestedFeesA",
+            "name": "padding1",
             "type": "u64"
           },
           {
-            "name": "accNonInvestedFeesB",
+            "name": "padding2",
             "type": "u64"
           },
           {
