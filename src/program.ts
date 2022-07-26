@@ -561,24 +561,21 @@ export class GGoldcaSDK {
     }
   }
 
-  async increaseLiquidityQuoteByInputToken(
-    inputTokenAmount: u64,
-    poolId: web3.PublicKey,
+  increaseLiquidityQuoteByInputToken(
+    inputTokenAmount: Decimal,
+    tickLower: number,
+    tickUpper: number,
     inputMint: web3.PublicKey,
-    slippageTolerance: Percentage
-  ) {
-    const position = await this.pdaAccounts.getActivePosition(poolId);
-    const [poolData, positionData] = await Promise.all([
-      this.fetcher.getWhirlpoolData(poolId, true),
-      this.fetcher.getWhirlpoolPositionData(position, true),
-    ]);
-    return wh.increaseLiquidityQuoteByInputTokenWithParams({
-      inputTokenMint: inputMint,
+    slippageTolerance: Percentage,
+    whirlpool: wh.Whirlpool
+  ): wh.IncreaseLiquidityQuote {
+    return wh.increaseLiquidityQuoteByInputToken(
+      inputMint,
       inputTokenAmount,
-      tickLowerIndex: positionData.tickLowerIndex,
-      tickUpperIndex: positionData.tickUpperIndex,
+      tickLower,
+      tickUpper,
       slippageTolerance,
-      ...poolData,
-    });
+      whirlpool
+    );
   }
 }
