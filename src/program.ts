@@ -27,6 +27,7 @@ import { Fetcher } from "./fetcher";
 import IDL from "./idl/ggoldca.json";
 import { PDAAccounts } from "./pda";
 import { Pools } from "./pools";
+import { isSwapAtoB } from "./reinvest";
 
 const DAO_TREASURY_PUBKEY = new web3.PublicKey(
   "8XhNoDjjNoLP5Rys1pBJKGdE8acEC1HJsWGkfkMt6JP1"
@@ -457,11 +458,9 @@ export class GGoldcaSDK {
     const { userSigner, poolId } = params;
 
     const [
-      poolData,
       position,
       { vaultAccount, vaultInputTokenAAccount, vaultInputTokenBAccount },
     ] = await Promise.all([
-      this.fetcher.getWhirlpoolData(poolId),
       this.pdaAccounts.getActivePosition(poolId),
       this.pdaAccounts.getVaultKeys(poolId),
     ]);
@@ -475,8 +474,28 @@ export class GGoldcaSDK {
       poolId
     );
 
-    // TODO compute swap direction
-    const isAtoB = false;
+    await this.fetcher.save(
+      [poolId, position, vaultInputTokenAAccount, vaultInputTokenBAccount],
+      true
+    );
+
+    const [poolData, positionData, vaultTokenAData, vaultTokenBData] =
+      await Promise.all([
+        this.fetcher.getWhirlpoolData(poolId),
+        this.fetcher.getWhirlpoolPositionData(position),
+        this.fetcher.getAccount(vaultInputTokenAAccount),
+        this.fetcher.getAccount(vaultInputTokenBAccount),
+      ]);
+
+    const isAtoB = isSwapAtoB(
+      poolData.sqrtPrice,
+      positionData.liquidity,
+      positionData.tickLowerIndex,
+      positionData.tickUpperIndex,
+      vaultTokenAData.amount,
+      vaultTokenBData.amount
+    );
+
     const tickArrayAddresses = wh.PoolUtil.getTickArrayPublicKeysForSwap(
       poolData.tickCurrentIndex,
       poolData.tickSpacing,
