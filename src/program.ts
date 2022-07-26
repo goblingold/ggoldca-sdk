@@ -1,4 +1,9 @@
-import { ORCA_TOKEN_SWAP_ID, OrcaPoolConfig, getOrca } from "@orca-so/sdk";
+import {
+  ORCA_TOKEN_SWAP_ID,
+  OrcaPoolConfig,
+  getOrca,
+  Percentage,
+} from "@orca-so/sdk";
 import { OrcaPoolParams } from "@orca-so/sdk/dist/model/orca/pool/pool-types";
 import * as wh from "@orca-so/whirlpools-sdk";
 import {
@@ -10,6 +15,7 @@ import {
   utils,
   web3,
 } from "@project-serum/anchor";
+import { u64 } from "@solana/spl-token";
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
   TOKEN_PROGRAM_ID,
@@ -534,5 +540,26 @@ export class GGoldcaSDK {
     } else {
       return null;
     }
+  }
+
+  async increaseLiquidityQuoteByInputToken(
+    inputTokenAmount: u64,
+    poolId: web3.PublicKey,
+    inputMint: web3.PublicKey,
+    slippageTolerance: Percentage
+  ) {
+    const position = await this.pdaAccounts.getActivePosition(poolId);
+    const [poolData, positionData] = await Promise.all([
+      this.fetcher.getWhirlpoolData(poolId, true),
+      this.fetcher.getWhirlpoolPositionData(position, true),
+    ]);
+    return wh.increaseLiquidityQuoteByInputTokenWithParams({
+      inputTokenMint: inputMint,
+      inputTokenAmount,
+      tickLowerIndex: positionData.tickLowerIndex,
+      tickUpperIndex: positionData.tickUpperIndex,
+      slippageTolerance,
+      ...poolData,
+    });
   }
 }
