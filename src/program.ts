@@ -20,6 +20,7 @@ import { Decimal } from "decimal.js";
 import { Fetcher } from "./fetcher";
 import IDL from "./idl/ggoldca.json";
 import { PDAAccounts } from "./pda";
+import { Pools } from "./pools";
 
 const DAO_TREASURY_PUBKEY = new web3.PublicKey(
   "8XhNoDjjNoLP5Rys1pBJKGdE8acEC1HJsWGkfkMt6JP1"
@@ -33,7 +34,7 @@ function getOrcaRewardSwapPools(poolId: web3.PublicKey): OrcaPoolParams[] {
   const orca = getOrca(null as unknown as web3.Connection);
 
   switch (poolId.toString()) {
-    case "Fvtf8VCjnkqbETA6KtyHYqHm26ut6w184Jqm4MQjPvv7":
+    case Pools.USDH_USDC:
       return [
         orca.getPool(OrcaPoolConfig.HBB_USDC)["poolParams"],
         orca.getPool(OrcaPoolConfig.ORCA_USDC)["poolParams"],
