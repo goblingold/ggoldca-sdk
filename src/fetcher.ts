@@ -5,7 +5,12 @@ import {
   WhirlpoolData,
 } from "@orca-so/whirlpools-sdk";
 import { BorshAccountsCoder, Idl, utils, web3 } from "@project-serum/anchor";
-import { MintLayout, RawMint } from "@solana/spl-token-v2";
+import {
+  AccountLayout,
+  MintLayout,
+  RawAccount,
+  RawMint,
+} from "@solana/spl-token-v2";
 import IDL from "./idl/ggoldca.json";
 
 export class Fetcher {
@@ -17,6 +22,14 @@ export class Fetcher {
     this.connection = connection;
     this.cached = new Map<string, Buffer>();
     this.ggCoder = new BorshAccountsCoder(IDL as Idl);
+  }
+
+  async getAccount(
+    pubkey: web3.PublicKey,
+    refresh = false
+  ): Promise<RawAccount> {
+    const buffer = await this.getOrFetchBuffer(pubkey, refresh);
+    return AccountLayout.decode(buffer);
   }
 
   async getMint(pubkey: web3.PublicKey, refresh = false): Promise<RawMint> {
