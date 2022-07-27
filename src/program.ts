@@ -1,10 +1,4 @@
-import {
-  ORCA_TOKEN_SWAP_ID,
-  OrcaPoolConfig,
-  getOrca,
-  Percentage,
-} from "@orca-so/sdk";
-import { OrcaPoolParams } from "@orca-so/sdk/dist/model/orca/pool/pool-types";
+import { Percentage } from "@orca-so/sdk";
 import * as wh from "@orca-so/whirlpools-sdk";
 import {
   AnchorProvider,
@@ -15,7 +9,6 @@ import {
   utils,
   web3,
 } from "@project-serum/anchor";
-import { u64 } from "@solana/spl-token";
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
   TOKEN_PROGRAM_ID,
@@ -26,8 +19,8 @@ import { Decimal } from "decimal.js";
 import { Fetcher } from "./fetcher";
 import IDL from "./idl/ggoldca.json";
 import { PDAAccounts } from "./pda";
-import { Pools } from "./pools";
 import { isSwapAtoB } from "./reinvest";
+import { swapRewardsAccounts } from "./swapRewards";
 
 const DAO_TREASURY_PUBKEY = new web3.PublicKey(
   "8XhNoDjjNoLP5Rys1pBJKGdE8acEC1HJsWGkfkMt6JP1"
@@ -36,20 +29,6 @@ const DAO_TREASURY_PUBKEY = new web3.PublicKey(
 const PROGRAM_ID = new web3.PublicKey(
   "ECzqPRCK7S7jXeNWoc3QrYH6yWQkcQGpGR2RWqRQ9e9P"
 );
-
-function getOrcaRewardSwapPools(poolId: web3.PublicKey): OrcaPoolParams[] {
-  const orca = getOrca(null as unknown as web3.Connection);
-
-  switch (poolId.toString()) {
-    case Pools.USDH_USDC:
-      return [
-        orca.getPool(OrcaPoolConfig.HBB_USDC)["poolParams"],
-        orca.getPool(OrcaPoolConfig.ORCA_USDC)["poolParams"],
-      ];
-    default:
-      throw new Error("unset swap pool for " + poolId);
-  }
-}
 
 interface InitializeVaultParams {
   userSigner: web3.PublicKey;
@@ -396,7 +375,7 @@ export class GGoldcaSDK {
     );
   }
 
-  async sellRewardsIxs(
+  async swapRewardsIxs(
     params: SellRewardsParams
   ): Promise<web3.TransactionInstruction[]> {
     const { userSigner, poolId } = params;
@@ -410,43 +389,37 @@ export class GGoldcaSDK {
       .map((info) => info.mint)
       .filter((mint) => mint.toString() !== web3.PublicKey.default.toString());
 
+    const swapAccounts = await swapRewardsAccounts(
+      poolId,
+      rewardMints,
+      this.fetcher
+    );
+
     const vaultRewardsTokenAccounts = await Promise.all(
       rewardMints.map(async (mint) =>
         getAssociatedTokenAddress(mint, vaultAccount, true)
       )
     );
 
-    const swapPools = getOrcaRewardSwapPools(poolId);
-
     const vaultDestinationTokenAccounts = await Promise.all(
-      swapPools
-        .map((pool) => pool.tokenIds)
-        .flat()
-        .filter((token) => !JSON.stringify(rewardMints).includes(token))
-        .map(async (token) => {
-          const mint = new web3.PublicKey(token);
-          return getAssociatedTokenAddress(mint, vaultAccount, true);
-        })
+      swapAccounts.map(async (swap) =>
+        getAssociatedTokenAddress(swap.destinationTokenMint, vaultAccount, true)
+      )
     );
 
     return await Promise.all(
-      swapPools.map(async (pool, indx) =>
+      swapAccounts.map(async (swap, indx) =>
         this.program.methods
-          .sellRewards()
+          .swapRewards()
           .accounts({
             userSigner,
             vaultAccount,
             vaultRewardsTokenAccount: vaultRewardsTokenAccounts[indx],
-            vaultInputTokenAccount: vaultDestinationTokenAccounts[indx],
-            orcaProgram: ORCA_TOKEN_SWAP_ID,
-            pool: pool.address,
-            poolAuthority: pool.authority,
-            poolSourceTokenAccount: pool.tokens[pool.tokenIds[0]].addr,
-            poolDestinationTokenAccount: pool.tokens[pool.tokenIds[1]].addr,
-            poolMintAccount: pool.poolTokenMint,
-            poolFeeAccount: pool.feeAccount,
-            programId: TOKEN_PROGRAM_ID,
+            vaultDestinationTokenAccount: vaultDestinationTokenAccounts[indx],
+            tokenProgram: TOKEN_PROGRAM_ID,
+            swapProgram: swap.programId,
           })
+          .remainingAccounts(swap.metas)
           .instruction()
       )
     );

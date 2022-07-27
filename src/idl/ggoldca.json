@@ -523,7 +523,7 @@
       ]
     },
     {
-      "name": "sellRewards",
+      "name": "swapRewards",
       "accounts": [
         {
           "name": "userSigner",
@@ -541,47 +541,17 @@
           "isSigner": false
         },
         {
-          "name": "vaultInputTokenAccount",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "orcaProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "pool",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "poolAuthority",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "poolSourceTokenAccount",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "poolDestinationTokenAccount",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "poolMintAccount",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "poolFeeAccount",
+          "name": "vaultDestinationTokenAccount",
           "isMut": true,
           "isSigner": false
         },
         {
           "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "swapProgram",
           "isMut": false,
           "isSigner": false
         }
@@ -919,43 +889,48 @@
     },
     {
       "code": 6006,
-      "name": "InvalidRemainingAccounts",
-      "msg": "Invalid number remaining accounts"
-    },
-    {
-      "code": 6007,
       "name": "InvalidInputMint",
       "msg": "Invalid input token mint pubkey"
     },
     {
-      "code": 6008,
+      "code": 6007,
       "name": "PositionAlreadyOpened",
       "msg": "Position already opened"
     },
     {
-      "code": 6009,
+      "code": 6008,
       "name": "PositionLimitReached",
       "msg": "Position limit reached"
     },
     {
-      "code": 6010,
+      "code": 6009,
       "name": "PositionNotActive",
       "msg": "Position does not exist or is not active"
     },
     {
-      "code": 6011,
+      "code": 6010,
       "name": "NotEnoughFees",
       "msg": "Not enough fees generated yet"
     },
     {
-      "code": 6012,
+      "code": 6011,
       "name": "NotEnoughRewards",
       "msg": "Not enough rewards generated yet"
     },
     {
-      "code": 6013,
+      "code": 6012,
       "name": "UnauthorizedUser",
       "msg": "Unauthorized user"
+    },
+    {
+      "code": 6013,
+      "name": "InvalidSwapProgramId",
+      "msg": "Invalid swap program ID"
+    },
+    {
+      "code": 6014,
+      "name": "InvalidNumberOfAccounts",
+      "msg": "Invalid number of accounts"
     }
   ]
 }
