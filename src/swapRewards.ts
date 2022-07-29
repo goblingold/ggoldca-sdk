@@ -52,8 +52,13 @@ function getOrcaSwapAccounts(
   const orca = getOrca(null as unknown as web3.Connection);
   const pool = orca.getPool(config)["poolParams"];
 
+  const inputTokenIndx = pool.tokenIds.findIndex(
+    (token) => token === rewardsMintKey.toString()
+  );
+
+  const destinationTokenIndx = (inputTokenIndx + 1) % 2;
   const destinationTokenMint = new web3.PublicKey(
-    pool.tokenIds.find((token) => token !== rewardsMintKey.toString())
+    pool.tokenIds[destinationTokenIndx]
   );
 
   return {
@@ -73,12 +78,12 @@ function getOrcaSwapAccounts(
       {
         isSigner: false,
         isWritable: true,
-        pubkey: pool.tokens[pool.tokenIds[0]].addr,
+        pubkey: pool.tokens[pool.tokenIds[inputTokenIndx]].addr,
       },
       {
         isSigner: false,
         isWritable: true,
-        pubkey: pool.tokens[pool.tokenIds[1]].addr,
+        pubkey: pool.tokens[pool.tokenIds[destinationTokenIndx]].addr,
       },
       {
         isSigner: false,
