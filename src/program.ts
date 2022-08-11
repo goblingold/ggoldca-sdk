@@ -432,7 +432,12 @@ export class GGoldcaSDK {
 
     const [
       position,
-      { vaultAccount, vaultInputTokenAAccount, vaultInputTokenBAccount },
+      {
+        vaultAccount,
+        vaultLpTokenMintPubkey,
+        vaultInputTokenAAccount,
+        vaultInputTokenBAccount,
+      },
     ] = await Promise.all([
       this.pdaAccounts.getActivePosition(poolId),
       this.pdaAccounts.getVaultKeys(poolId),
@@ -483,6 +488,7 @@ export class GGoldcaSDK {
         userSigner,
         vaultAccount,
         whirlpoolProgramId: wh.ORCA_WHIRLPOOL_PROGRAM_ID,
+        vaultLpTokenMintPubkey,
         vaultInputTokenAAccount,
         vaultInputTokenBAccount,
         tokenVaultA: poolData.tokenVaultA,

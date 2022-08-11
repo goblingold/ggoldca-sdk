@@ -572,6 +572,11 @@
           "isSigner": false
         },
         {
+          "name": "vaultLpTokenMintPubkey",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
           "name": "whirlpoolProgramId",
           "isMut": false,
           "isSigner": false
@@ -790,11 +795,11 @@
             "type": "u128"
           },
           {
-            "name": "padding1",
+            "name": "earnedRewardsTokenA",
             "type": "u64"
           },
           {
-            "name": "padding2",
+            "name": "earnedRewardsTokenB",
             "type": "u64"
           },
           {
@@ -854,6 +859,78 @@
           }
         ]
       }
+    }
+  ],
+  "events": [
+    {
+      "name": "RebalanceEvent",
+      "fields": [
+        {
+          "name": "whirlpoolId",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "oldLiquidity",
+          "type": "u128",
+          "index": false
+        },
+        {
+          "name": "newLiquidity",
+          "type": "u128",
+          "index": false
+        }
+      ]
+    },
+    {
+      "name": "ReinvestEvent",
+      "fields": [
+        {
+          "name": "whirlpoolId",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "lpSupply",
+          "type": "u64",
+          "index": false
+        },
+        {
+          "name": "liquidity",
+          "type": "u128",
+          "index": false
+        },
+        {
+          "name": "liquidityIncrease",
+          "type": "u128",
+          "index": false
+        }
+      ]
+    },
+    {
+      "name": "SwapEvent",
+      "fields": [
+        {
+          "name": "mintIn",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "amountIn",
+          "type": "u64",
+          "index": false
+        },
+        {
+          "name": "mintOut",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "amountOut",
+          "type": "u64",
+          "index": false
+        }
+      ]
     }
   ],
   "errors": [
@@ -931,6 +1008,16 @@
       "code": 6014,
       "name": "InvalidNumberOfAccounts",
       "msg": "Invalid number of accounts"
+    },
+    {
+      "code": 6015,
+      "name": "WhirlpoolLiquidityTooHigh",
+      "msg": "whirlpool: Liquidity amount must be less than i64::MAX"
+    },
+    {
+      "code": 6016,
+      "name": "WhirlpoolLiquidityToDeltasOverflow",
+      "msg": "whirlpool: overflow while computing liquidity to token deltas"
     }
   ]
 }
