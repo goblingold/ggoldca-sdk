@@ -33,6 +33,7 @@ const PROGRAM_ID = new web3.PublicKey(
 interface InitializeVaultParams {
   userSigner: web3.PublicKey;
   poolId: web3.PublicKey;
+  vaultId: BN;
   fee: BN;
 }
 
@@ -41,6 +42,7 @@ interface OpenPositionParams {
   upperPrice: Decimal;
   userSigner: web3.PublicKey;
   poolId: web3.PublicKey;
+  vaultId: BN;
   positionMint: web3.PublicKey;
 }
 
@@ -50,6 +52,7 @@ interface DepositParams {
   maxAmountB: BN;
   userSigner: web3.PublicKey;
   poolId: web3.PublicKey;
+  vaultId: BN;
 }
 
 interface WithdrawParams {
@@ -58,26 +61,31 @@ interface WithdrawParams {
   minAmountB: BN;
   userSigner: web3.PublicKey;
   poolId: web3.PublicKey;
+  vaultId: BN;
 }
 
 interface CollectFeesParams {
   userSigner: web3.PublicKey;
   position: web3.PublicKey;
+  vaultId: BN;
 }
 
 interface CollectRewardsParams {
   userSigner: web3.PublicKey;
   position: web3.PublicKey;
+  vaultId: BN;
 }
 
 interface SellRewardsParams {
   userSigner: web3.PublicKey;
   poolId: web3.PublicKey;
+  vaultId: BN;
 }
 
 interface ReinvestParams {
   userSigner: web3.PublicKey;
   poolId: web3.PublicKey;
+  vaultId: BN;
 }
 
 interface ConstructorParams {
@@ -89,6 +97,7 @@ interface ConstructorParams {
 interface SetVaultFeeParams {
   userSigner: web3.PublicKey;
   poolId: web3.PublicKey;
+  vaultId: BN;
   fee: BN;
 }
 
@@ -115,13 +124,13 @@ export class GGoldcaSDK {
   async initializeVaultIxs(
     params: InitializeVaultParams
   ): Promise<web3.TransactionInstruction[]> {
-    const { poolId, userSigner } = params;
+    const { poolId, vaultId, userSigner } = params;
     const {
       vaultAccount,
       vaultLpTokenMintPubkey,
       vaultInputTokenAAccount,
       vaultInputTokenBAccount,
-    } = await this.pdaAccounts.getVaultKeys(poolId);
+    } = await this.pdaAccounts.getVaultKeys(poolId, vaultId);
 
     const poolData = await this.fetcher.getWhirlpoolData(poolId);
 
@@ -194,7 +203,14 @@ export class GGoldcaSDK {
   async openPositionIxs(
     params: OpenPositionParams
   ): Promise<web3.TransactionInstruction[]> {
-    const { lowerPrice, upperPrice, userSigner, poolId, positionMint } = params;
+    const {
+      lowerPrice,
+      upperPrice,
+      userSigner,
+      poolId,
+      vaultId,
+      positionMint,
+    } = params;
 
     const poolData = await this.fetcher.getWhirlpoolData(poolId);
 
@@ -208,7 +224,10 @@ export class GGoldcaSDK {
     const tokenADecimal = mintA.decimals;
     const tokenBDecimal = mintB.decimals;
 
-    const { vaultAccount } = await this.pdaAccounts.getVaultKeys(poolId);
+    const { vaultAccount } = await this.pdaAccounts.getVaultKeys(
+      poolId,
+      vaultId
+    );
 
     const tickLower = wh.TickUtil.getInitializableTickIndex(
       wh.PriceMath.priceToTickIndex(lowerPrice, tokenADecimal, tokenBDecimal),
@@ -262,11 +281,13 @@ export class GGoldcaSDK {
   }
 
   async depositIx(params: DepositParams): Promise<web3.TransactionInstruction> {
-    const { lpAmount, maxAmountA, maxAmountB, userSigner, poolId } = params;
+    const { lpAmount, maxAmountA, maxAmountB, userSigner, poolId, vaultId } =
+      params;
 
     const accounts = await this.pdaAccounts.getDepositWithdrawAccounts(
       userSigner,
-      poolId
+      poolId,
+      vaultId
     );
 
     return this.program.methods
@@ -278,11 +299,13 @@ export class GGoldcaSDK {
   async withdrawIx(
     params: WithdrawParams
   ): Promise<web3.TransactionInstruction> {
-    const { lpAmount, minAmountA, minAmountB, userSigner, poolId } = params;
+    const { lpAmount, minAmountA, minAmountB, userSigner, poolId, vaultId } =
+      params;
 
     const accounts = await this.pdaAccounts.getDepositWithdrawAccounts(
       userSigner,
-      poolId
+      poolId,
+      vaultId
     );
 
     return this.program.methods
@@ -294,7 +317,7 @@ export class GGoldcaSDK {
   async collectFeesIx(
     params: CollectFeesParams
   ): Promise<web3.TransactionInstruction> {
-    const { userSigner, position } = params;
+    const { userSigner, vaultId, position } = params;
 
     const positionData = await this.fetcher.getWhirlpoolPositionData(position);
     const poolData = await this.fetcher.getWhirlpoolData(
@@ -305,8 +328,8 @@ export class GGoldcaSDK {
       positionAccounts,
       { vaultAccount, vaultInputTokenAAccount, vaultInputTokenBAccount },
     ] = await Promise.all([
-      this.pdaAccounts.getPositionAccounts(position),
-      this.pdaAccounts.getVaultKeys(positionData.whirlpool),
+      this.pdaAccounts.getPositionAccounts(position, vaultId),
+      this.pdaAccounts.getVaultKeys(positionData.whirlpool, vaultId),
     ]);
 
     const [treasuryTokenAAccount, treasuryTokenBAccount] = await Promise.all([
@@ -335,7 +358,7 @@ export class GGoldcaSDK {
   async collectRewardsIxs(
     params: CollectRewardsParams
   ): Promise<web3.TransactionInstruction[]> {
-    const { userSigner, position } = params;
+    const { userSigner, vaultId, position } = params;
 
     const positionData = await this.fetcher.getWhirlpoolPositionData(position);
     const poolData = await this.fetcher.getWhirlpoolData(
@@ -343,8 +366,8 @@ export class GGoldcaSDK {
     );
 
     const [positionAccounts, { vaultAccount }] = await Promise.all([
-      this.pdaAccounts.getPositionAccounts(position),
-      this.pdaAccounts.getVaultKeys(positionData.whirlpool),
+      this.pdaAccounts.getPositionAccounts(position, vaultId),
+      this.pdaAccounts.getVaultKeys(positionData.whirlpool, vaultId),
     ]);
 
     const rewardInfos = poolData.rewardInfos.filter(
@@ -385,11 +408,11 @@ export class GGoldcaSDK {
   async swapRewardsIxs(
     params: SellRewardsParams
   ): Promise<web3.TransactionInstruction[]> {
-    const { userSigner, poolId } = params;
+    const { userSigner, vaultId, poolId } = params;
 
     const [poolData, { vaultAccount }] = await Promise.all([
       this.fetcher.getWhirlpoolData(poolId),
-      this.pdaAccounts.getVaultKeys(poolId),
+      this.pdaAccounts.getVaultKeys(poolId, vaultId),
     ]);
 
     const rewardMints = poolData.rewardInfos
@@ -435,7 +458,7 @@ export class GGoldcaSDK {
   async reinvestIx(
     params: ReinvestParams
   ): Promise<web3.TransactionInstruction> {
-    const { userSigner, poolId } = params;
+    const { userSigner, vaultId, poolId } = params;
 
     const [
       position,
@@ -446,12 +469,13 @@ export class GGoldcaSDK {
         vaultInputTokenBAccount,
       },
     ] = await Promise.all([
-      this.pdaAccounts.getActivePosition(poolId),
-      this.pdaAccounts.getVaultKeys(poolId),
+      this.pdaAccounts.getActivePosition(poolId, vaultId),
+      this.pdaAccounts.getVaultKeys(poolId, vaultId),
     ]);
 
     const positionAccounts = await this.pdaAccounts.getPositionAccounts(
-      position
+      position,
+      vaultId
     );
 
     const oracleKeypair = wh.PDAUtil.getOracle(
@@ -565,10 +589,15 @@ export class GGoldcaSDK {
     );
   }
 
-  async setVaultFee(params: SetVaultFeeParams): Promise<web3.TransactionInstruction> {
-    const { userSigner, poolId, fee } = params;
+  async setVaultFee(
+    params: SetVaultFeeParams
+  ): Promise<web3.TransactionInstruction> {
+    const { userSigner, poolId, vaultId, fee } = params;
 
-    const { vaultAccount } = await this.pdaAccounts.getVaultKeys(poolId);
+    const { vaultAccount } = await this.pdaAccounts.getVaultKeys(
+      poolId,
+      vaultId
+    );
 
     return this.program.methods
       .setVaultFee(fee)

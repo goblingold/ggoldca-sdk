@@ -15,10 +15,11 @@ export class PriceMath {
 
   async getLpFromTokenAmounts(
     poolId: web3.PublicKey,
+    vaultId: BN,
     tokenAmountA: BN,
     tokenAmountB: BN
   ): Promise<BN> {
-    const position = await this.pdaAccounts.getActivePosition(poolId);
+    const position = await this.pdaAccounts.getActivePosition(poolId, vaultId);
     const [poolData, positionData] = await Promise.all([
       this.fetcher.getWhirlpoolData(poolId, true),
       this.fetcher.getWhirlpoolPositionData(position, true),
@@ -39,9 +40,10 @@ export class PriceMath {
 
   async getTokenAmountsFromLp(
     poolId: web3.PublicKey,
+    vaultId: BN,
     lpAmount: BN
   ): Promise<[BN, BN]> {
-    const position = await this.pdaAccounts.getActivePosition(poolId);
+    const position = await this.pdaAccounts.getActivePosition(poolId, vaultId);
     const [poolData, positionData] = await Promise.all([
       this.fetcher.getWhirlpoolData(poolId, true),
       this.fetcher.getWhirlpoolPositionData(position, true),

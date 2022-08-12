@@ -1,5 +1,5 @@
 import * as wh from "@orca-so/whirlpools-sdk";
-import { web3 } from "@project-serum/anchor";
+import { BN, web3 } from "@project-serum/anchor";
 import {
   TOKEN_PROGRAM_ID,
   getAssociatedTokenAddress,
@@ -47,11 +47,11 @@ export class PDAAccounts {
     this.programId = programId;
   }
 
-  async getVaultKeys(poolId: web3.PublicKey): Promise<VaultKeys> {
+  async getVaultKeys(poolId: web3.PublicKey, vaultId: BN): Promise<VaultKeys> {
     const key = poolId.toString();
     if (!this.cached[key]) {
       const [vaultAccount, _bumpVault] = web3.PublicKey.findProgramAddressSync(
-        [Buffer.from("vault"), poolId.toBuffer()],
+        [Buffer.from("vault"), vaultId.toBuffer("le", 1), poolId.toBuffer()],
         this.programId
       );
 
@@ -80,13 +80,14 @@ export class PDAAccounts {
   }
 
   async getPositionAccounts(
-    position: web3.PublicKey
+    position: web3.PublicKey,
+    vaultId: BN
   ): Promise<PositionAccounts> {
     const positionData = await this.fetcher.getWhirlpoolPositionData(position);
 
     const [poolData, { vaultAccount }] = await Promise.all([
       this.fetcher.getWhirlpoolData(positionData.whirlpool),
-      this.getVaultKeys(positionData.whirlpool),
+      this.getVaultKeys(positionData.whirlpool, vaultId),
     ]);
 
     const positionTokenAccount = await getAssociatedTokenAddress(
@@ -126,15 +127,19 @@ export class PDAAccounts {
     };
   }
 
-  async getActivePosition(poolId: web3.PublicKey): Promise<web3.PublicKey> {
-    const { vaultAccount } = await this.getVaultKeys(poolId);
+  async getActivePosition(
+    poolId: web3.PublicKey,
+    vaultId: BN
+  ): Promise<web3.PublicKey> {
+    const { vaultAccount } = await this.getVaultKeys(poolId, vaultId);
     const vaultData = await this.fetcher.getVault(vaultAccount, true);
     return vaultData["positions"][0]["pubkey"];
   }
 
   async getDepositWithdrawAccounts(
     userSigner: web3.PublicKey,
-    poolId: web3.PublicKey
+    poolId: web3.PublicKey,
+    vaultId: BN
   ): Promise<DepositWithdrawAccounts> {
     const [
       {
@@ -146,12 +151,12 @@ export class PDAAccounts {
       position,
       poolData,
     ] = await Promise.all([
-      this.getVaultKeys(poolId),
-      this.getActivePosition(poolId),
+      this.getVaultKeys(poolId, vaultId),
+      this.getActivePosition(poolId, vaultId),
       this.fetcher.getWhirlpoolData(poolId),
     ]);
 
-    const positionAccounts = await this.getPositionAccounts(position);
+    const positionAccounts = await this.getPositionAccounts(position, vaultId);
     const [userLpTokenAccount, userTokenAAccount, userTokenBAccount] =
       await Promise.all(
         [vaultLpTokenMintPubkey, poolData.tokenMintA, poolData.tokenMintB].map(
