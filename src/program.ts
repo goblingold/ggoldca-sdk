@@ -86,7 +86,7 @@ interface ConstructorParams {
   programId?: web3.PublicKey;
 }
 
-interface SetVaultFee {
+interface SetVaultFeeParams {
   userSigner: web3.PublicKey;
   poolId: web3.PublicKey;
   fee: BN;
@@ -565,7 +565,7 @@ export class GGoldcaSDK {
     );
   }
 
-  async setVaultFee(params: SetVaultFee): Promise<web3.TransactionInstruction> {
+  async setVaultFee(params: SetVaultFeeParams): Promise<web3.TransactionInstruction> {
     const { userSigner, poolId, fee } = params;
 
     const { vaultAccount } = await this.pdaAccounts.getVaultKeys(poolId);
