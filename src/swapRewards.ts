@@ -19,11 +19,11 @@ type SwapAccounts = {
 };
 
 export async function swapRewardsAccounts(
-  poolId: web3.PublicKey,
+  whirlpool: web3.PublicKey,
   mintKeys: web3.PublicKey[],
   fetcher: Fetcher
 ): Promise<SwapAccounts[]> {
-  switch (poolId.toString()) {
+  switch (whirlpool.toString()) {
     case Pools.USDH_USDC:
       return [
         getOrcaSwapAccounts(mintKeys[0], OrcaPoolConfig.HBB_USDC),
@@ -41,7 +41,7 @@ export async function swapRewardsAccounts(
       ];
 
     default:
-      throw new Error("unset swap pools for " + poolId);
+      throw new Error("unset swap pools for " + whirlpool);
   }
 }
 

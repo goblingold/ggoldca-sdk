@@ -68,6 +68,10 @@
       ],
       "args": [
         {
+          "name": "vaultId",
+          "type": "u8"
+        },
+        {
           "name": "fee",
           "type": "u64"
         }
@@ -146,6 +150,47 @@
           "type": "i32"
         }
       ]
+    },
+    {
+      "name": "closePosition",
+      "accounts": [
+        {
+          "name": "userSigner",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "vaultAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "whirlpoolProgramId",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "position",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "positionMint",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "positionTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
     },
     {
       "name": "deposit",
@@ -802,6 +847,13 @@
         "kind": "struct",
         "fields": [
           {
+            "name": "vaultId",
+            "docs": [
+              "Vault number for a given whirlpool"
+            ],
+            "type": "u8"
+          },
+          {
             "name": "bumps",
             "docs": [
               "PDA bump seeds"
@@ -841,12 +893,15 @@
           {
             "name": "fee",
             "docs": [
-              "Fee percentage applied on earnings"
+              "Fee percentage using FEE_SCALE. Fee applied on earnings"
             ],
             "type": "u64"
           },
           {
             "name": "earnedRewardsTokenA",
+            "docs": [
+              "Total rewards earned by the vault"
+            ],
             "type": "u64"
           },
           {
@@ -1103,13 +1158,21 @@
     },
     {
       "code": 6015,
+      "name": "InvalidFee",
+      "msg": "Invalid Fee"
+    },
+    {
+      "code": 6016,
       "name": "WhirlpoolLiquidityTooHigh",
       "msg": "whirlpool: Liquidity amount must be less than i64::MAX"
     },
     {
-      "code": 6016,
+      "code": 6017,
       "name": "WhirlpoolLiquidityToDeltasOverflow",
       "msg": "whirlpool: overflow while computing liquidity to token deltas"
     }
-  ]
+  ],
+  "metadata": {
+    "address": "ECzqPRCK7S7jXeNWoc3QrYH6yWQkcQGpGR2RWqRQ9e9P"
+  }
 }

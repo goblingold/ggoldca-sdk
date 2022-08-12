@@ -1,8 +1,8 @@
 import * as wh from "@orca-so/whirlpools-sdk";
-import { BN, web3 } from "@project-serum/anchor";
+import { BN } from "@project-serum/anchor";
 import { u64 } from "@solana/spl-token";
 import { Fetcher } from "./fetcher";
-import { PDAAccounts } from "./pda";
+import { PDAAccounts, VaultId } from "./pda";
 
 export class PriceMath {
   fetcher: Fetcher;
@@ -14,14 +14,13 @@ export class PriceMath {
   }
 
   async getLpFromTokenAmounts(
-    poolId: web3.PublicKey,
-    vaultId: BN,
+    vaultId: VaultId,
     tokenAmountA: BN,
     tokenAmountB: BN
   ): Promise<BN> {
-    const position = await this.pdaAccounts.getActivePosition(poolId, vaultId);
+    const position = await this.pdaAccounts.getActivePosition(vaultId);
     const [poolData, positionData] = await Promise.all([
-      this.fetcher.getWhirlpoolData(poolId, true),
+      this.fetcher.getWhirlpoolData(vaultId.whirlpool, true),
       this.fetcher.getWhirlpoolPositionData(position, true),
     ]);
 
@@ -39,13 +38,12 @@ export class PriceMath {
   }
 
   async getTokenAmountsFromLp(
-    poolId: web3.PublicKey,
-    vaultId: BN,
+    vaultId: VaultId,
     lpAmount: BN
   ): Promise<[BN, BN]> {
-    const position = await this.pdaAccounts.getActivePosition(poolId, vaultId);
+    const position = await this.pdaAccounts.getActivePosition(vaultId);
     const [poolData, positionData] = await Promise.all([
-      this.fetcher.getWhirlpoolData(poolId, true),
+      this.fetcher.getWhirlpoolData(vaultId.whirlpool, true),
       this.fetcher.getWhirlpoolPositionData(position, true),
     ]);
 
