@@ -33,6 +33,7 @@ const PROGRAM_ID = new web3.PublicKey(
 interface InitializeVaultParams {
   userSigner: web3.PublicKey;
   poolId: web3.PublicKey;
+  fee: BN;
 }
 
 interface OpenPositionParams {
@@ -85,6 +86,12 @@ interface ConstructorParams {
   programId?: web3.PublicKey;
 }
 
+interface SetVaultFeeParams {
+  userSigner: web3.PublicKey;
+  poolId: web3.PublicKey;
+  fee: BN;
+}
+
 export class GGoldcaSDK {
   program;
   fetcher: Fetcher;
@@ -119,7 +126,7 @@ export class GGoldcaSDK {
     const poolData = await this.fetcher.getWhirlpoolData(poolId);
 
     const ix = await this.program.methods
-      .initializeVault()
+      .initializeVault(params.fee)
       .accounts({
         userSigner,
         whirlpool: poolId,
@@ -556,5 +563,19 @@ export class GGoldcaSDK {
       slippageTolerance,
       whirlpool
     );
+  }
+
+  async setVaultFee(params: SetVaultFeeParams): Promise<web3.TransactionInstruction> {
+    const { userSigner, poolId, fee } = params;
+
+    const { vaultAccount } = await this.pdaAccounts.getVaultKeys(poolId);
+
+    return this.program.methods
+      .setVaultFee(fee)
+      .accounts({
+        userSigner,
+        vaultAccount,
+      })
+      .instruction();
   }
 }

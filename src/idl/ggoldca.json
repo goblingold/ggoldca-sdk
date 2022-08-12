@@ -66,7 +66,12 @@
           "isSigner": false
         }
       ],
-      "args": []
+      "args": [
+        {
+          "name": "fee",
+          "type": "u64"
+        }
+      ]
     },
     {
       "name": "openPosition",
@@ -764,35 +769,81 @@
         }
       ],
       "args": []
+    },
+    {
+      "name": "setVaultFee",
+      "accounts": [
+        {
+          "name": "userSigner",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "vaultAccount",
+          "isMut": true,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "fee",
+          "type": "u64"
+        }
+      ]
     }
   ],
   "accounts": [
     {
       "name": "VaultAccount",
+      "docs": [
+        "Strategy vault account"
+      ],
       "type": {
         "kind": "struct",
         "fields": [
           {
             "name": "bumps",
+            "docs": [
+              "PDA bump seeds"
+            ],
             "type": {
               "defined": "Bumps"
             }
           },
           {
             "name": "whirlpoolId",
+            "docs": [
+              "Whirlpool pubkey"
+            ],
             "type": "publicKey"
           },
           {
             "name": "inputTokenAMintPubkey",
+            "docs": [
+              "Pool input token_a mint address"
+            ],
             "type": "publicKey"
           },
           {
             "name": "inputTokenBMintPubkey",
+            "docs": [
+              "Pool input token_b mint address"
+            ],
             "type": "publicKey"
           },
           {
             "name": "lastLiquidityIncrease",
+            "docs": [
+              "Last reinvestment liquidity increase"
+            ],
             "type": "u128"
+          },
+          {
+            "name": "fee",
+            "docs": [
+              "Fee percentage applied on earnings"
+            ],
+            "type": "u64"
           },
           {
             "name": "earnedRewardsTokenA",
@@ -804,6 +855,9 @@
           },
           {
             "name": "padding",
+            "docs": [
+              "Additional padding"
+            ],
             "type": {
               "array": [
                 "u64",
@@ -813,6 +867,9 @@
           },
           {
             "name": "positions",
+            "docs": [
+              "Information about the opened positions (max = MAX_POSITIONS)"
+            ],
             "type": {
               "vec": {
                 "defined": "PositionInfo"
@@ -826,6 +883,9 @@
   "types": [
     {
       "name": "Bumps",
+      "docs": [
+        "PDA bump seeds"
+      ],
       "type": {
         "kind": "struct",
         "fields": [
@@ -842,19 +902,31 @@
     },
     {
       "name": "PositionInfo",
+      "docs": [
+        "Position information"
+      ],
       "type": {
         "kind": "struct",
         "fields": [
           {
             "name": "pubkey",
+            "docs": [
+              "Position pubkey"
+            ],
             "type": "publicKey"
           },
           {
             "name": "lowerTick",
+            "docs": [
+              "Position lower tick"
+            ],
             "type": "i32"
           },
           {
             "name": "upperTick",
+            "docs": [
+              "Position upper tick"
+            ],
             "type": "i32"
           }
         ]
