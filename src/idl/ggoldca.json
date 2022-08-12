@@ -863,6 +863,26 @@
   ],
   "events": [
     {
+      "name": "DepositWithdrawEvent",
+      "fields": [
+        {
+          "name": "amountA",
+          "type": "u64",
+          "index": false
+        },
+        {
+          "name": "amountB",
+          "type": "u64",
+          "index": false
+        },
+        {
+          "name": "liquidity",
+          "type": "u128",
+          "index": false
+        }
+      ]
+    },
+    {
       "name": "RebalanceEvent",
       "fields": [
         {
