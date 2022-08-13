@@ -1107,10 +1107,13 @@
         "kind": "enum",
         "variants": [
           {
+            "name": "NotSet"
+          },
+          {
             "name": "OrcaV2"
           },
           {
-            "name": "OrcaWhirlpool"
+            "name": "Whirlpool"
           }
         ]
       }
@@ -1246,66 +1249,76 @@
     },
     {
       "code": 6007,
+      "name": "InvalidRewardMint",
+      "msg": "Invalid reward token mint pubkey"
+    },
+    {
+      "code": 6008,
       "name": "PositionAlreadyOpened",
       "msg": "Position already opened"
     },
     {
-      "code": 6008,
+      "code": 6009,
       "name": "PositionLimitReached",
       "msg": "Position limit reached"
     },
     {
-      "code": 6009,
+      "code": 6010,
       "name": "PositionNotActive",
       "msg": "Position does not exist or is not active"
     },
     {
-      "code": 6010,
+      "code": 6011,
       "name": "NotEnoughFees",
       "msg": "Not enough fees generated yet"
     },
     {
-      "code": 6011,
+      "code": 6012,
       "name": "NotEnoughRewards",
       "msg": "Not enough rewards generated yet"
     },
     {
-      "code": 6012,
+      "code": 6013,
       "name": "UnauthorizedUser",
       "msg": "Unauthorized user"
     },
     {
-      "code": 6013,
+      "code": 6014,
       "name": "InvalidSwap",
       "msg": "Invalid swap"
     },
     {
-      "code": 6014,
+      "code": 6015,
       "name": "InvalidNumberOfAccounts",
       "msg": "Invalid number of accounts"
     },
     {
-      "code": 6015,
+      "code": 6016,
       "name": "InvalidFee",
       "msg": "Invalid Fee"
     },
     {
-      "code": 6016,
+      "code": 6017,
       "name": "InvalidMarketRewards",
       "msg": "Invalid Market Rewards"
     },
     {
-      "code": 6017,
+      "code": 6018,
       "name": "InvalidSwapProgramId",
       "msg": "Invalid swap program ID"
     },
     {
-      "code": 6018,
+      "code": 6019,
+      "name": "SwapNotSet",
+      "msg": "Swap is not set for the current rewards"
+    },
+    {
+      "code": 6020,
       "name": "WhirlpoolLiquidityTooHigh",
       "msg": "whirlpool: Liquidity amount must be less than i64::MAX"
     },
     {
-      "code": 6019,
+      "code": 6021,
       "name": "WhirlpoolLiquidityToDeltasOverflow",
       "msg": "whirlpool: overflow while computing liquidity to token deltas"
     }
