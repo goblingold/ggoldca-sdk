@@ -34,7 +34,7 @@ interface InitializeVaultParams {
   userSigner: web3.PublicKey;
   vaultId: VaultId;
   fee: BN;
-  vecMarketRewards: [any];
+  vecMarketRewards: [object];
 }
 
 interface OpenPositionParams {
@@ -95,10 +95,11 @@ interface SetVaultFeeParams {
   fee: BN;
 }
 
-interface SetMarketRewards {
+interface SetMarketRewardsParams {
   userSigner: web3.PublicKey;
   vaultId: VaultId;
-  marketRewards: any;
+  rewardsMint: web3.PublicKey;
+  marketRewards: object;
 }
 
 export class GGoldcaSDK {
@@ -598,12 +599,10 @@ export class GGoldcaSDK {
   }
 
   async setMarketRewards(
-    params: SetMarketRewards
+    params: SetMarketRewardsParams
   ): Promise<web3.TransactionInstruction> {
     const { userSigner, vaultId, marketRewards } = params;
-
     const { vaultAccount } = await this.pdaAccounts.getVaultKeys(vaultId);
-    const poolData = await this.fetcher.getWhirlpoolData(vaultId.whirlpool);
 
     return this.program.methods
       .setMarketRewards(marketRewards)
@@ -611,7 +610,7 @@ export class GGoldcaSDK {
         userSigner,
         vaultAccount,
         whirlpool: vaultId.whirlpool,
-        rewardsMint: poolData.rewardInfos[0].mint,
+        rewardsMint: params.rewardsMint,
       })
       .instruction();
   }
