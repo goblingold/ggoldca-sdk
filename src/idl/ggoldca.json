@@ -849,13 +849,9 @@
       ],
       "args": [
         {
-          "name": "isDestinationTokenA",
-          "type": "bool"
-        },
-        {
-          "name": "id",
+          "name": "marketRewards",
           "type": {
-            "defined": "MarketRewards"
+            "defined": "MarketRewardsInfoInput"
           }
         }
       ]
