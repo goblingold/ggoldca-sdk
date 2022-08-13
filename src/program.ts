@@ -34,6 +34,7 @@ interface InitializeVaultParams {
   userSigner: web3.PublicKey;
   vaultId: VaultId;
   fee: BN;
+  vecMarketRewards: [any];
 }
 
 interface OpenPositionParams {
@@ -128,7 +129,7 @@ export class GGoldcaSDK {
     const poolData = await this.fetcher.getWhirlpoolData(vaultId.whirlpool);
 
     const ix = await this.program.methods
-      .initializeVault(vaultId.id, params.fee)
+      .initializeVault(vaultId.id, params.fee, params.vecMarketRewards)
       .accounts({
         userSigner,
         whirlpool: vaultId.whirlpool,

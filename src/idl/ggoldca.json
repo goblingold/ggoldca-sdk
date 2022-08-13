@@ -74,6 +74,14 @@
         {
           "name": "fee",
           "type": "u64"
+        },
+        {
+          "name": "marketRewards",
+          "type": {
+            "vec": {
+              "defined": "MarketRewardsInfoInput"
+            }
+          }
         }
       ]
     },
@@ -816,6 +824,43 @@
       "args": []
     },
     {
+      "name": "setMarketRewards",
+      "accounts": [
+        {
+          "name": "userSigner",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "vaultAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "whirlpool",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "rewardsMint",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "isDestinationTokenA",
+          "type": "bool"
+        },
+        {
+          "name": "id",
+          "type": {
+            "defined": "MarketRewards"
+          }
+        }
+      ]
+    },
+    {
       "name": "setVaultFee",
       "accounts": [
         {
@@ -921,6 +966,20 @@
             }
           },
           {
+            "name": "marketRewards",
+            "docs": [
+              "The market where to sell the rewards"
+            ],
+            "type": {
+              "array": [
+                {
+                  "defined": "MarketRewardsInfo"
+                },
+                3
+              ]
+            }
+          },
+          {
             "name": "positions",
             "docs": [
               "Information about the opened positions (max = MAX_POSITIONS)"
@@ -936,6 +995,30 @@
     }
   ],
   "types": [
+    {
+      "name": "MarketRewardsInfoInput",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "isDestinationTokenA",
+            "docs": [
+              "Pubkey of the mint output to swap the rewards for"
+            ],
+            "type": "bool"
+          },
+          {
+            "name": "id",
+            "docs": [
+              "Id of market associated"
+            ],
+            "type": {
+              "defined": "MarketRewards"
+            }
+          }
+        ]
+      }
+    },
     {
       "name": "Bumps",
       "docs": [
@@ -983,6 +1066,51 @@
               "Position upper tick"
             ],
             "type": "i32"
+          }
+        ]
+      }
+    },
+    {
+      "name": "MarketRewardsInfo",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "rewardsMint",
+            "docs": [
+              "Pubkey of the rewards token mint"
+            ],
+            "type": "publicKey"
+          },
+          {
+            "name": "isDestinationTokenA",
+            "docs": [
+              "Pubkey of the mint output to swap the rewards for"
+            ],
+            "type": "bool"
+          },
+          {
+            "name": "id",
+            "docs": [
+              "Id of market associated"
+            ],
+            "type": {
+              "defined": "MarketRewards"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "MarketRewards",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "OrcaV2"
+          },
+          {
+            "name": "OrcaWhirlpool"
           }
         ]
       }
@@ -1148,8 +1276,8 @@
     },
     {
       "code": 6013,
-      "name": "InvalidSwapProgramId",
-      "msg": "Invalid swap program ID"
+      "name": "InvalidSwap",
+      "msg": "Invalid swap"
     },
     {
       "code": 6014,
@@ -1163,11 +1291,21 @@
     },
     {
       "code": 6016,
+      "name": "InvalidMarketRewards",
+      "msg": "Invalid Market Rewards"
+    },
+    {
+      "code": 6017,
+      "name": "InvalidSwapProgramId",
+      "msg": "Invalid swap program ID"
+    },
+    {
+      "code": 6018,
       "name": "WhirlpoolLiquidityTooHigh",
       "msg": "whirlpool: Liquidity amount must be less than i64::MAX"
     },
     {
-      "code": 6017,
+      "code": 6019,
       "name": "WhirlpoolLiquidityToDeltasOverflow",
       "msg": "whirlpool: overflow while computing liquidity to token deltas"
     }
