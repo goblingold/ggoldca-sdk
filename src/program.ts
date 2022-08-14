@@ -401,12 +401,18 @@ export class GGoldcaSDK {
     const vaultData = await this.fetcher.getVault(vaultAccount, true);
     const market = vaultData["marketRewards"][rewardsIndex];
 
+    const vaultRewardsTokenAccount = await getAssociatedTokenAddress(
+      market.rewardsMint,
+      vaultAccount,
+      true
+    );
+
     // TODO ensure market.id is a Transfer
     return this.program.methods
       .transferRewards()
       .accounts({
         vaultAccount,
-        vaultRewardsTokenAccount: market.rewardsMint,
+        vaultRewardsTokenAccount,
         destinationTokenAccount: market.destinationTokenAccount,
         tokenProgram: TOKEN_PROGRAM_ID,
       })
