@@ -1118,6 +1118,11 @@
       "name": "DepositWithdrawEvent",
       "fields": [
         {
+          "name": "vaultAccount",
+          "type": "publicKey",
+          "index": false
+        },
+        {
           "name": "amountA",
           "type": "u64",
           "index": false
@@ -1138,7 +1143,7 @@
       "name": "RebalanceEvent",
       "fields": [
         {
-          "name": "whirlpoolId",
+          "name": "vaultAccount",
           "type": "publicKey",
           "index": false
         },
@@ -1182,6 +1187,11 @@
     {
       "name": "SwapEvent",
       "fields": [
+        {
+          "name": "vaultAccount",
+          "type": "publicKey",
+          "index": false
+        },
         {
           "name": "mintIn",
           "type": "publicKey",
@@ -1233,128 +1243,118 @@
     },
     {
       "code": 6005,
-      "name": "ExceededTokenMax",
-      "msg": "Exceeded token max"
-    },
-    {
-      "code": 6006,
       "name": "InvalidVaultVersion",
       "msg": "Invalid vault version"
     },
     {
-      "code": 6007,
-      "name": "InvalidInputMint",
-      "msg": "Invalid input token mint pubkey"
-    },
-    {
-      "code": 6008,
-      "name": "InvalidRewardMint",
-      "msg": "Invalid reward token mint pubkey"
-    },
-    {
-      "code": 6009,
-      "name": "PositionAlreadyOpened",
-      "msg": "Position already opened"
-    },
-    {
-      "code": 6010,
-      "name": "PositionLimitReached",
-      "msg": "Position limit reached"
-    },
-    {
-      "code": 6011,
-      "name": "PositionNotActive",
-      "msg": "Position is not active"
-    },
-    {
-      "code": 6012,
-      "name": "PositionNonExistence",
-      "msg": "Position does not exist"
-    },
-    {
-      "code": 6013,
-      "name": "NotEnoughFees",
-      "msg": "Not enough fees generated yet"
-    },
-    {
-      "code": 6014,
-      "name": "NotEnoughRewards",
-      "msg": "Not enough rewards generated yet"
-    },
-    {
-      "code": 6015,
+      "code": 6006,
       "name": "UnauthorizedUser",
       "msg": "Unauthorized user"
     },
     {
-      "code": 6016,
-      "name": "InvalidSwap",
-      "msg": "Invalid swap"
-    },
-    {
-      "code": 6017,
-      "name": "InvalidNumberOfAccounts",
-      "msg": "Invalid number of accounts"
-    },
-    {
-      "code": 6018,
+      "code": 6007,
       "name": "InvalidFee",
-      "msg": "Invalid Fee"
+      "msg": "Fee cannot exceed FEE_SCALE"
     },
     {
-      "code": 6019,
-      "name": "InvalidMarketRewards",
-      "msg": "Invalid Market Rewards"
+      "code": 6008,
+      "name": "MarketInvalidDestination",
+      "msg": "Market rewards input invalid destination account mint"
     },
     {
-      "code": 6020,
-      "name": "InvalidMarketRewardsInputTransferAcc",
-      "msg": "Market rewards input wrong transfer account"
-    },
-    {
-      "code": 6021,
-      "name": "InvalidMarketRewardsInputZeroAmount",
-      "msg": "Market rewards input zero min_amount_out not allowed"
-    },
-    {
-      "code": 6022,
-      "name": "InvalidMarketRewardsInputSwap",
+      "code": 6009,
+      "name": "MarketInvalidSwapMint",
       "msg": "Market rewards input swap of input tokens not allowed"
     },
     {
-      "code": 6023,
-      "name": "InvalidSwapMarket",
-      "msg": "Swap market not set. Use instead transfer rewards"
+      "code": 6010,
+      "name": "MarketInvalidZeroAmount",
+      "msg": "Market rewards input zero min_amount_out not allowed"
     },
     {
-      "code": 6024,
-      "name": "InvalidSwapProgramId",
-      "msg": "Invalid swap program ID"
+      "code": 6011,
+      "name": "ZeroLpAmount",
+      "msg": "LP amount must be greater than zero"
     },
     {
-      "code": 6025,
-      "name": "SwapNotSet",
-      "msg": "Swap is not set for the current rewards"
+      "code": 6012,
+      "name": "ExceededTokenMax",
+      "msg": "Exceeded token max"
     },
     {
-      "code": 6026,
-      "name": "TransferNotSet",
-      "msg": "Transfer is not set for the current rewards"
-    },
-    {
-      "code": 6027,
+      "code": 6013,
       "name": "InvalidDestinationAccount",
       "msg": "Invalid destination token account"
     },
     {
-      "code": 6028,
-      "name": "WhirlpoolLiquidityTooHigh",
-      "msg": "whirlpool: Liquidity amount must be less than i64::MAX"
+      "code": 6014,
+      "name": "InvalidInputMint",
+      "msg": "Invalid input token mint pubkey"
     },
     {
-      "code": 6029,
+      "code": 6015,
+      "name": "InvalidRewardMint",
+      "msg": "Invalid reward token mint pubkey"
+    },
+    {
+      "code": 6016,
+      "name": "PositionAlreadyOpened",
+      "msg": "Position already opened"
+    },
+    {
+      "code": 6017,
+      "name": "PositionLimitReached",
+      "msg": "Position limit reached"
+    },
+    {
+      "code": 6018,
+      "name": "PositionNotActive",
+      "msg": "Position is not active"
+    },
+    {
+      "code": 6019,
+      "name": "PositionNonExistence",
+      "msg": "Position does not exist"
+    },
+    {
+      "code": 6020,
+      "name": "NotEnoughFees",
+      "msg": "Not enough fees generated yet"
+    },
+    {
+      "code": 6021,
+      "name": "NotEnoughRewards",
+      "msg": "Not enough rewards generated yet"
+    },
+    {
+      "code": 6022,
+      "name": "InvalidNumberOfAccounts",
+      "msg": "Invalid number of accounts"
+    },
+    {
+      "code": 6023,
+      "name": "SwapNotSet",
+      "msg": "Swap is not set for the current rewards"
+    },
+    {
+      "code": 6024,
+      "name": "SwapInvalidProgramId",
+      "msg": "Invalid swap program ID"
+    },
+    {
+      "code": 6025,
+      "name": "TransferNotSet",
+      "msg": "Transfer is not set for the current rewards"
+    },
+    {
+      "code": 6026,
+      "name": "WhirlpoolLiquidityTooHigh",
+      "msg": "whirlpool_cpi: Liquidity amount must be less than i64::MAX"
+    },
+    {
+      "code": 6027,
       "name": "WhirlpoolLiquidityToDeltasOverflow",
-      "msg": "whirlpool: overflow while computing liquidity to token deltas"
+      "msg": "whirlpool_cpi: Overflow while computing liquidity to token deltas"
     }
   ]
 }
