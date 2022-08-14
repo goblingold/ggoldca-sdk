@@ -1263,8 +1263,8 @@
     },
     {
       "code": 6009,
-      "name": "MarketInvalidSwapMint",
-      "msg": "Market rewards input swap of input tokens not allowed"
+      "name": "MarketInvalidMint",
+      "msg": "Market rewards input tokens not allowed"
     },
     {
       "code": 6010,
