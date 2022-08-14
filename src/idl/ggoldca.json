@@ -907,15 +907,6 @@
             "type": "u64"
           },
           {
-            "name": "padding",
-            "type": {
-              "array": [
-                "u64",
-                10
-              ]
-            }
-          },
-          {
             "name": "marketRewards",
             "type": {
               "array": [
@@ -923,6 +914,15 @@
                   "defined": "MarketRewardsInfo"
                 },
                 3
+              ]
+            }
+          },
+          {
+            "name": "padding",
+            "type": {
+              "array": [
+                "u64",
+                10
               ]
             }
           },
@@ -945,14 +945,18 @@
         "kind": "struct",
         "fields": [
           {
-            "name": "isDestinationTokenA",
-            "type": "bool"
-          },
-          {
             "name": "id",
             "type": {
               "defined": "MarketRewards"
             }
+          },
+          {
+            "name": "isDestinationTokenA",
+            "type": "bool"
+          },
+          {
+            "name": "minAmountOut",
+            "type": "u64"
           }
         ]
       }
@@ -1003,14 +1007,18 @@
             "type": "publicKey"
           },
           {
-            "name": "isDestinationTokenA",
-            "type": "bool"
-          },
-          {
             "name": "id",
             "type": {
               "defined": "MarketRewards"
             }
+          },
+          {
+            "name": "isDestinationTokenA",
+            "type": "bool"
+          },
+          {
+            "name": "minAmountOut",
+            "type": "u64"
           }
         ]
       }
@@ -1278,21 +1286,31 @@
     },
     {
       "code": 6020,
+      "name": "InvalidMarketRewardsInputZeroAmount",
+      "msg": "Market rewards input zero min_amount_out not allowed"
+    },
+    {
+      "code": 6021,
+      "name": "InvalidMarketRewardsInputSwap",
+      "msg": "Market rewards input swap of input tokens not allowed"
+    },
+    {
+      "code": 6022,
       "name": "InvalidSwapProgramId",
       "msg": "Invalid swap program ID"
     },
     {
-      "code": 6021,
+      "code": 6023,
       "name": "SwapNotSet",
       "msg": "Swap is not set for the current rewards"
     },
     {
-      "code": 6022,
+      "code": 6024,
       "name": "WhirlpoolLiquidityTooHigh",
       "msg": "whirlpool: Liquidity amount must be less than i64::MAX"
     },
     {
-      "code": 6023,
+      "code": 6025,
       "name": "WhirlpoolLiquidityToDeltasOverflow",
       "msg": "whirlpool: overflow while computing liquidity to token deltas"
     }
