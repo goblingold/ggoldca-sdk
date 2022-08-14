@@ -101,8 +101,6 @@ interface SetMarketRewardsParams {
 interface TransferRewards {
   vaultId: VaultId;
   rewardsIndex: number;
-  marketRewards: any;
-  destinationTokenAccount: web3.PublicKey;
 }
 
 export class GGoldcaSDK {
@@ -397,27 +395,19 @@ export class GGoldcaSDK {
   async transferRewards(
     params: TransferRewards
   ): Promise<web3.TransactionInstruction> {
-    const { vaultId } = params;
+    const { vaultId, rewardsIndex } = params;
 
-    const [poolData, { vaultAccount }] = await Promise.all([
-      this.fetcher.getWhirlpoolData(vaultId.whirlpool),
-      this.pdaAccounts.getVaultKeys(vaultId),
-    ]);
-    const rewardMints = poolData.rewardInfos
-      .map((info) => info.mint)
-      .filter((mint) => mint.toString() !== web3.PublicKey.default.toString());
+    const { vaultAccount } = await this.pdaAccounts.getVaultKeys(vaultId);
+    const vaultData = await this.fetcher.getVault(vaultAccount, true);
+    const market = vaultData["marketRewards"][rewardsIndex];
 
-    const vaultRewardsTokenAccounts = await Promise.all(
-      rewardMints.map(async (mint) =>
-        getAssociatedTokenAddress(mint, vaultAccount, true)
-      )
-    );
+    // TODO ensure market.id is a Transfer
     return this.program.methods
-      .transferRewards(params.marketRewards)
+      .transferRewards()
       .accounts({
         vaultAccount,
-        vaultRewardsTokenAccount: vaultRewardsTokenAccounts[params.rewardsIndex],
-        destinationTokenAccount: params.destinationTokenAccount,
+        vaultRewardsTokenAccount: market.rewardsMint,
+        destinationTokenAccount: market.destinationTokenAccount,
         tokenProgram: TOKEN_PROGRAM_ID,
       })
       .instruction();
@@ -639,7 +629,7 @@ export class GGoldcaSDK {
         vaultAccount,
         whirlpool: vaultId.whirlpool,
         rewardsMint: params.rewardsMint,
-        destinationTokenAccount: params.destinationTokenAccount
+        destinationTokenAccount: params.destinationTokenAccount,
       })
       .instruction();
   }
