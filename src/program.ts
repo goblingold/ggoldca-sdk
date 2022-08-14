@@ -34,7 +34,6 @@ interface InitializeVaultParams {
   userSigner: web3.PublicKey;
   vaultId: VaultId;
   fee: BN;
-  vecMarketRewards: [object];
 }
 
 interface OpenPositionParams {
@@ -96,6 +95,14 @@ interface SetMarketRewardsParams {
   vaultId: VaultId;
   rewardsMint: web3.PublicKey;
   marketRewards: object;
+  destinationTokenAccount: web3.PublicKey;
+}
+
+interface TransferRewards {
+  vaultId: VaultId;
+  rewardsIndex: number;
+  marketRewards: any;
+  destinationTokenAccount: web3.PublicKey;
 }
 
 export class GGoldcaSDK {
@@ -132,7 +139,7 @@ export class GGoldcaSDK {
     const poolData = await this.fetcher.getWhirlpoolData(vaultId.whirlpool);
 
     const ix = await this.program.methods
-      .initializeVault(vaultId.id, params.fee, params.vecMarketRewards)
+      .initializeVault(vaultId.id, params.fee)
       .accounts({
         userSigner,
         whirlpool: vaultId.whirlpool,
@@ -387,6 +394,35 @@ export class GGoldcaSDK {
     );
   }
 
+  async transferRewards(
+    params: TransferRewards
+  ): Promise<web3.TransactionInstruction> {
+    const { vaultId } = params;
+
+    const [poolData, { vaultAccount }] = await Promise.all([
+      this.fetcher.getWhirlpoolData(vaultId.whirlpool),
+      this.pdaAccounts.getVaultKeys(vaultId),
+    ]);
+    const rewardMints = poolData.rewardInfos
+      .map((info) => info.mint)
+      .filter((mint) => mint.toString() !== web3.PublicKey.default.toString());
+
+    const vaultRewardsTokenAccounts = await Promise.all(
+      rewardMints.map(async (mint) =>
+        getAssociatedTokenAddress(mint, vaultAccount, true)
+      )
+    );
+    return this.program.methods
+      .transferRewards(params.marketRewards)
+      .accounts({
+        vaultAccount,
+        vaultRewardsTokenAccount: vaultRewardsTokenAccounts[params.rewardsIndex],
+        destinationTokenAccount: params.destinationTokenAccount,
+        tokenProgram: TOKEN_PROGRAM_ID,
+      })
+      .instruction();
+  }
+
   async swapRewardsIxs(
     params: SellRewardsParams
   ): Promise<web3.TransactionInstruction[]> {
@@ -603,6 +639,7 @@ export class GGoldcaSDK {
         vaultAccount,
         whirlpool: vaultId.whirlpool,
         rewardsMint: params.rewardsMint,
+        destinationTokenAccount: params.destinationTokenAccount
       })
       .instruction();
   }

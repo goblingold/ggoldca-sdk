@@ -68,20 +68,12 @@
       ],
       "args": [
         {
-          "name": "vaultId",
+          "name": "id",
           "type": "u8"
         },
         {
           "name": "fee",
           "type": "u64"
-        },
-        {
-          "name": "marketRewards",
-          "type": {
-            "vec": {
-              "defined": "MarketRewardsInfoInput"
-            }
-          }
         }
       ]
     },
@@ -220,6 +212,11 @@
         },
         {
           "name": "rewardsMint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "destinationTokenAccount",
           "isMut": false,
           "isSigner": false
         }
@@ -762,6 +759,32 @@
       "args": []
     },
     {
+      "name": "transferRewards",
+      "accounts": [
+        {
+          "name": "vaultAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "vaultRewardsTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "destinationTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
+    },
+    {
       "name": "reinvest",
       "accounts": [
         {
@@ -865,7 +888,11 @@
         "kind": "struct",
         "fields": [
           {
-            "name": "vaultId",
+            "name": "version",
+            "type": "u8"
+          },
+          {
+            "name": "id",
             "type": "u8"
           },
           {
@@ -903,15 +930,6 @@
             "type": "u64"
           },
           {
-            "name": "padding",
-            "type": {
-              "array": [
-                "u64",
-                10
-              ]
-            }
-          },
-          {
             "name": "marketRewards",
             "type": {
               "array": [
@@ -919,6 +937,15 @@
                   "defined": "MarketRewardsInfo"
                 },
                 3
+              ]
+            }
+          },
+          {
+            "name": "padding",
+            "type": {
+              "array": [
+                "u64",
+                10
               ]
             }
           },
@@ -941,14 +968,14 @@
         "kind": "struct",
         "fields": [
           {
-            "name": "isDestinationTokenA",
-            "type": "bool"
-          },
-          {
             "name": "id",
             "type": {
               "defined": "MarketRewards"
             }
+          },
+          {
+            "name": "minAmountOut",
+            "type": "u64"
           }
         ]
       }
@@ -995,18 +1022,22 @@
         "kind": "struct",
         "fields": [
           {
-            "name": "rewardsMint",
-            "type": "publicKey"
-          },
-          {
-            "name": "isDestinationTokenA",
-            "type": "bool"
-          },
-          {
             "name": "id",
             "type": {
               "defined": "MarketRewards"
             }
+          },
+          {
+            "name": "rewardsMint",
+            "type": "publicKey"
+          },
+          {
+            "name": "destinationTokenAccount",
+            "type": "publicKey"
+          },
+          {
+            "name": "minAmountOut",
+            "type": "u64"
           }
         ]
       }
@@ -1020,6 +1051,9 @@
             "name": "NotSet"
           },
           {
+            "name": "Transfer"
+          },
+          {
             "name": "OrcaV2"
           },
           {
@@ -1030,6 +1064,56 @@
     }
   ],
   "events": [
+    {
+      "name": "CollectFeesEvent",
+      "fields": [
+        {
+          "name": "vaultAccount",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "totalFeesTokenA",
+          "type": "u64",
+          "index": false
+        },
+        {
+          "name": "totalFeesTokenB",
+          "type": "u64",
+          "index": false
+        },
+        {
+          "name": "treasuryFeeTokenA",
+          "type": "u64",
+          "index": false
+        },
+        {
+          "name": "treasuryFeeTokenB",
+          "type": "u64",
+          "index": false
+        }
+      ]
+    },
+    {
+      "name": "CollectRewardsEvent",
+      "fields": [
+        {
+          "name": "vaultAccount",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "totalRewards",
+          "type": "u64",
+          "index": false
+        },
+        {
+          "name": "treasuryFee",
+          "type": "u64",
+          "index": false
+        }
+      ]
+    },
     {
       "name": "DepositWithdrawEvent",
       "fields": [
@@ -1074,7 +1158,7 @@
       "name": "ReinvestEvent",
       "fields": [
         {
-          "name": "whirlpoolId",
+          "name": "vaultAccount",
           "type": "publicKey",
           "index": false
         },
@@ -1154,86 +1238,121 @@
     },
     {
       "code": 6006,
+      "name": "InvalidVaultVersion",
+      "msg": "Invalid vault version"
+    },
+    {
+      "code": 6007,
       "name": "InvalidInputMint",
       "msg": "Invalid input token mint pubkey"
     },
     {
-      "code": 6007,
+      "code": 6008,
       "name": "InvalidRewardMint",
       "msg": "Invalid reward token mint pubkey"
     },
     {
-      "code": 6008,
+      "code": 6009,
       "name": "PositionAlreadyOpened",
       "msg": "Position already opened"
     },
     {
-      "code": 6009,
+      "code": 6010,
       "name": "PositionLimitReached",
       "msg": "Position limit reached"
     },
     {
-      "code": 6010,
+      "code": 6011,
       "name": "PositionNotActive",
       "msg": "Position is not active"
     },
     {
-      "code": 6011,
+      "code": 6012,
       "name": "PositionNonExistence",
       "msg": "Position does not exist"
     },
     {
-      "code": 6012,
+      "code": 6013,
       "name": "NotEnoughFees",
       "msg": "Not enough fees generated yet"
     },
     {
-      "code": 6013,
+      "code": 6014,
       "name": "NotEnoughRewards",
       "msg": "Not enough rewards generated yet"
     },
     {
-      "code": 6014,
+      "code": 6015,
       "name": "UnauthorizedUser",
       "msg": "Unauthorized user"
     },
     {
-      "code": 6015,
+      "code": 6016,
       "name": "InvalidSwap",
       "msg": "Invalid swap"
     },
     {
-      "code": 6016,
+      "code": 6017,
       "name": "InvalidNumberOfAccounts",
       "msg": "Invalid number of accounts"
     },
     {
-      "code": 6017,
+      "code": 6018,
       "name": "InvalidFee",
       "msg": "Invalid Fee"
     },
     {
-      "code": 6018,
+      "code": 6019,
       "name": "InvalidMarketRewards",
       "msg": "Invalid Market Rewards"
     },
     {
-      "code": 6019,
+      "code": 6020,
+      "name": "InvalidMarketRewardsInputTransferAcc",
+      "msg": "Market rewards input wrong transfer account"
+    },
+    {
+      "code": 6021,
+      "name": "InvalidMarketRewardsInputZeroAmount",
+      "msg": "Market rewards input zero min_amount_out not allowed"
+    },
+    {
+      "code": 6022,
+      "name": "InvalidMarketRewardsInputSwap",
+      "msg": "Market rewards input swap of input tokens not allowed"
+    },
+    {
+      "code": 6023,
+      "name": "InvalidSwapMarket",
+      "msg": "Swap market not set. Use instead transfer rewards"
+    },
+    {
+      "code": 6024,
       "name": "InvalidSwapProgramId",
       "msg": "Invalid swap program ID"
     },
     {
-      "code": 6020,
+      "code": 6025,
       "name": "SwapNotSet",
       "msg": "Swap is not set for the current rewards"
     },
     {
-      "code": 6021,
+      "code": 6026,
+      "name": "TransferNotSet",
+      "msg": "Transfer is not set for the current rewards"
+    },
+    {
+      "code": 6027,
+      "name": "InvalidDestinationAccount",
+      "msg": "Invalid destination token account"
+    },
+    {
+      "code": 6028,
       "name": "WhirlpoolLiquidityTooHigh",
       "msg": "whirlpool: Liquidity amount must be less than i64::MAX"
     },
     {
-      "code": 6022,
+      "code": 6029,
       "name": "WhirlpoolLiquidityToDeltasOverflow",
       "msg": "whirlpool: overflow while computing liquidity to token deltas"
     }
