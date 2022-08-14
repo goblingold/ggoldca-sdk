@@ -62,24 +62,20 @@ interface WithdrawParams {
 }
 
 interface CollectFeesParams {
-  userSigner: web3.PublicKey;
   position: web3.PublicKey;
   vaultId: VaultId;
 }
 
 interface CollectRewardsParams {
-  userSigner: web3.PublicKey;
   position: web3.PublicKey;
   vaultId: VaultId;
 }
 
 interface SellRewardsParams {
-  userSigner: web3.PublicKey;
   vaultId: VaultId;
 }
 
 interface ReinvestParams {
-  userSigner: web3.PublicKey;
   vaultId: VaultId;
 }
 
@@ -305,7 +301,7 @@ export class GGoldcaSDK {
   async collectFeesIx(
     params: CollectFeesParams
   ): Promise<web3.TransactionInstruction> {
-    const { userSigner, vaultId, position } = params;
+    const { vaultId, position } = params;
 
     const positionData = await this.fetcher.getWhirlpoolPositionData(position);
     const poolData = await this.fetcher.getWhirlpoolData(
@@ -328,7 +324,6 @@ export class GGoldcaSDK {
     return this.program.methods
       .collectFees()
       .accounts({
-        userSigner,
         vaultAccount,
         whirlpoolProgramId: wh.ORCA_WHIRLPOOL_PROGRAM_ID,
         vaultInputTokenAAccount,
@@ -346,7 +341,7 @@ export class GGoldcaSDK {
   async collectRewardsIxs(
     params: CollectRewardsParams
   ): Promise<web3.TransactionInstruction[]> {
-    const { userSigner, vaultId, position } = params;
+    const { vaultId, position } = params;
 
     const positionData = await this.fetcher.getWhirlpoolPositionData(position);
     const poolData = await this.fetcher.getWhirlpoolData(
@@ -379,7 +374,6 @@ export class GGoldcaSDK {
         this.program.methods
           .collectRewards(indx)
           .accounts({
-            userSigner,
             vaultAccount,
             rewardVault: info.vault,
             vaultRewardsTokenAccount: vaultRewardsTokenAccounts[indx],
@@ -396,7 +390,7 @@ export class GGoldcaSDK {
   async swapRewardsIxs(
     params: SellRewardsParams
   ): Promise<web3.TransactionInstruction[]> {
-    const { userSigner, vaultId } = params;
+    const { vaultId } = params;
 
     const [poolData, { vaultAccount }] = await Promise.all([
       this.fetcher.getWhirlpoolData(vaultId.whirlpool),
@@ -430,7 +424,6 @@ export class GGoldcaSDK {
         this.program.methods
           .swapRewards()
           .accounts({
-            userSigner,
             vaultAccount,
             vaultRewardsTokenAccount: vaultRewardsTokenAccounts[indx],
             vaultDestinationTokenAccount: vaultDestinationTokenAccounts[indx],
@@ -446,7 +439,7 @@ export class GGoldcaSDK {
   async reinvestIx(
     params: ReinvestParams
   ): Promise<web3.TransactionInstruction> {
-    const { userSigner, vaultId } = params;
+    const { vaultId } = params;
 
     const [
       position,
@@ -509,7 +502,6 @@ export class GGoldcaSDK {
     return this.program.methods
       .reinvest()
       .accounts({
-        userSigner,
         vaultAccount,
         whirlpoolProgramId: wh.ORCA_WHIRLPOOL_PROGRAM_ID,
         vaultLpTokenMintPubkey,

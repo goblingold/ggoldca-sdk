@@ -201,6 +201,166 @@
       "args": []
     },
     {
+      "name": "setMarketRewards",
+      "accounts": [
+        {
+          "name": "userSigner",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "vaultAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "whirlpool",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "rewardsMint",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "marketRewards",
+          "type": {
+            "defined": "MarketRewardsInfoInput"
+          }
+        }
+      ]
+    },
+    {
+      "name": "setVaultFee",
+      "accounts": [
+        {
+          "name": "userSigner",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "vaultAccount",
+          "isMut": true,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "fee",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "rebalance",
+      "accounts": [
+        {
+          "name": "userSigner",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "vaultAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "vaultInputTokenAAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "vaultInputTokenBAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "whirlpoolProgramId",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenVaultA",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenVaultB",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "currentPosition",
+          "accounts": [
+            {
+              "name": "whirlpool",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "position",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "positionTokenAccount",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "tickArrayLower",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "tickArrayUpper",
+              "isMut": true,
+              "isSigner": false
+            }
+          ]
+        },
+        {
+          "name": "newPosition",
+          "accounts": [
+            {
+              "name": "whirlpool",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "position",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "positionTokenAccount",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "tickArrayLower",
+              "isMut": true,
+              "isSigner": false
+            },
+            {
+              "name": "tickArrayUpper",
+              "isMut": true,
+              "isSigner": false
+            }
+          ]
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": []
+    },
+    {
       "name": "deposit",
       "accounts": [
         {
@@ -422,11 +582,6 @@
       "name": "collectFees",
       "accounts": [
         {
-          "name": "userSigner",
-          "isMut": false,
-          "isSigner": true
-        },
-        {
           "name": "vaultAccount",
           "isMut": true,
           "isSigner": false
@@ -508,11 +663,6 @@
       "name": "collectRewards",
       "accounts": [
         {
-          "name": "userSigner",
-          "isMut": false,
-          "isSigner": true
-        },
-        {
           "name": "vaultAccount",
           "isMut": false,
           "isSigner": false
@@ -584,11 +734,6 @@
       "name": "swapRewards",
       "accounts": [
         {
-          "name": "userSigner",
-          "isMut": false,
-          "isSigner": true
-        },
-        {
           "name": "vaultAccount",
           "isMut": true,
           "isSigner": false
@@ -619,11 +764,6 @@
     {
       "name": "reinvest",
       "accounts": [
-        {
-          "name": "userSigner",
-          "isMut": false,
-          "isSigner": true
-        },
         {
           "name": "vaultAccount",
           "isMut": true,
@@ -716,233 +856,46 @@
         }
       ],
       "args": []
-    },
-    {
-      "name": "rebalance",
-      "accounts": [
-        {
-          "name": "userSigner",
-          "isMut": false,
-          "isSigner": true
-        },
-        {
-          "name": "vaultAccount",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "vaultInputTokenAAccount",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "vaultInputTokenBAccount",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "whirlpoolProgramId",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "tokenVaultA",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "tokenVaultB",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "currentPosition",
-          "accounts": [
-            {
-              "name": "whirlpool",
-              "isMut": true,
-              "isSigner": false
-            },
-            {
-              "name": "position",
-              "isMut": true,
-              "isSigner": false
-            },
-            {
-              "name": "positionTokenAccount",
-              "isMut": true,
-              "isSigner": false
-            },
-            {
-              "name": "tickArrayLower",
-              "isMut": true,
-              "isSigner": false
-            },
-            {
-              "name": "tickArrayUpper",
-              "isMut": true,
-              "isSigner": false
-            }
-          ]
-        },
-        {
-          "name": "newPosition",
-          "accounts": [
-            {
-              "name": "whirlpool",
-              "isMut": true,
-              "isSigner": false
-            },
-            {
-              "name": "position",
-              "isMut": true,
-              "isSigner": false
-            },
-            {
-              "name": "positionTokenAccount",
-              "isMut": true,
-              "isSigner": false
-            },
-            {
-              "name": "tickArrayLower",
-              "isMut": true,
-              "isSigner": false
-            },
-            {
-              "name": "tickArrayUpper",
-              "isMut": true,
-              "isSigner": false
-            }
-          ]
-        },
-        {
-          "name": "tokenProgram",
-          "isMut": false,
-          "isSigner": false
-        }
-      ],
-      "args": []
-    },
-    {
-      "name": "setMarketRewards",
-      "accounts": [
-        {
-          "name": "userSigner",
-          "isMut": false,
-          "isSigner": true
-        },
-        {
-          "name": "vaultAccount",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "whirlpool",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "rewardsMint",
-          "isMut": false,
-          "isSigner": false
-        }
-      ],
-      "args": [
-        {
-          "name": "marketRewards",
-          "type": {
-            "defined": "MarketRewardsInfoInput"
-          }
-        }
-      ]
-    },
-    {
-      "name": "setVaultFee",
-      "accounts": [
-        {
-          "name": "userSigner",
-          "isMut": false,
-          "isSigner": true
-        },
-        {
-          "name": "vaultAccount",
-          "isMut": true,
-          "isSigner": false
-        }
-      ],
-      "args": [
-        {
-          "name": "fee",
-          "type": "u64"
-        }
-      ]
     }
   ],
   "accounts": [
     {
       "name": "VaultAccount",
-      "docs": [
-        "Strategy vault account"
-      ],
       "type": {
         "kind": "struct",
         "fields": [
           {
             "name": "vaultId",
-            "docs": [
-              "Vault number for a given whirlpool"
-            ],
             "type": "u8"
           },
           {
             "name": "bumps",
-            "docs": [
-              "PDA bump seeds"
-            ],
             "type": {
               "defined": "Bumps"
             }
           },
           {
             "name": "whirlpoolId",
-            "docs": [
-              "Whirlpool pubkey"
-            ],
             "type": "publicKey"
           },
           {
             "name": "inputTokenAMintPubkey",
-            "docs": [
-              "Pool input token_a mint address"
-            ],
             "type": "publicKey"
           },
           {
             "name": "inputTokenBMintPubkey",
-            "docs": [
-              "Pool input token_b mint address"
-            ],
             "type": "publicKey"
           },
           {
             "name": "lastLiquidityIncrease",
-            "docs": [
-              "Last reinvestment liquidity increase"
-            ],
             "type": "u128"
           },
           {
             "name": "fee",
-            "docs": [
-              "Fee percentage using FEE_SCALE. Fee applied on earnings"
-            ],
             "type": "u64"
           },
           {
             "name": "earnedRewardsTokenA",
-            "docs": [
-              "Total rewards earned by the vault"
-            ],
             "type": "u64"
           },
           {
@@ -951,9 +904,6 @@
           },
           {
             "name": "padding",
-            "docs": [
-              "Additional padding"
-            ],
             "type": {
               "array": [
                 "u64",
@@ -963,9 +913,6 @@
           },
           {
             "name": "marketRewards",
-            "docs": [
-              "The market where to sell the rewards"
-            ],
             "type": {
               "array": [
                 {
@@ -977,9 +924,6 @@
           },
           {
             "name": "positions",
-            "docs": [
-              "Information about the opened positions (max = MAX_POSITIONS)"
-            ],
             "type": {
               "vec": {
                 "defined": "PositionInfo"
@@ -998,16 +942,10 @@
         "fields": [
           {
             "name": "isDestinationTokenA",
-            "docs": [
-              "Pubkey of the mint output to swap the rewards for"
-            ],
             "type": "bool"
           },
           {
             "name": "id",
-            "docs": [
-              "Id of market associated"
-            ],
             "type": {
               "defined": "MarketRewards"
             }
@@ -1017,9 +955,6 @@
     },
     {
       "name": "Bumps",
-      "docs": [
-        "PDA bump seeds"
-      ],
       "type": {
         "kind": "struct",
         "fields": [
@@ -1036,31 +971,19 @@
     },
     {
       "name": "PositionInfo",
-      "docs": [
-        "Position information"
-      ],
       "type": {
         "kind": "struct",
         "fields": [
           {
             "name": "pubkey",
-            "docs": [
-              "Position pubkey"
-            ],
             "type": "publicKey"
           },
           {
             "name": "lowerTick",
-            "docs": [
-              "Position lower tick"
-            ],
             "type": "i32"
           },
           {
             "name": "upperTick",
-            "docs": [
-              "Position upper tick"
-            ],
             "type": "i32"
           }
         ]
@@ -1073,23 +996,14 @@
         "fields": [
           {
             "name": "rewardsMint",
-            "docs": [
-              "Pubkey of the rewards token mint"
-            ],
             "type": "publicKey"
           },
           {
             "name": "isDestinationTokenA",
-            "docs": [
-              "Pubkey of the mint output to swap the rewards for"
-            ],
             "type": "bool"
           },
           {
             "name": "id",
-            "docs": [
-              "Id of market associated"
-            ],
             "type": {
               "defined": "MarketRewards"
             }
@@ -1261,65 +1175,67 @@
     {
       "code": 6010,
       "name": "PositionNotActive",
-      "msg": "Position does not exist or is not active"
+      "msg": "Position is not active"
     },
     {
       "code": 6011,
+      "name": "PositionNonExistence",
+      "msg": "Position does not exist"
+    },
+    {
+      "code": 6012,
       "name": "NotEnoughFees",
       "msg": "Not enough fees generated yet"
     },
     {
-      "code": 6012,
+      "code": 6013,
       "name": "NotEnoughRewards",
       "msg": "Not enough rewards generated yet"
     },
     {
-      "code": 6013,
+      "code": 6014,
       "name": "UnauthorizedUser",
       "msg": "Unauthorized user"
     },
     {
-      "code": 6014,
+      "code": 6015,
       "name": "InvalidSwap",
       "msg": "Invalid swap"
     },
     {
-      "code": 6015,
+      "code": 6016,
       "name": "InvalidNumberOfAccounts",
       "msg": "Invalid number of accounts"
     },
     {
-      "code": 6016,
+      "code": 6017,
       "name": "InvalidFee",
       "msg": "Invalid Fee"
     },
     {
-      "code": 6017,
+      "code": 6018,
       "name": "InvalidMarketRewards",
       "msg": "Invalid Market Rewards"
     },
     {
-      "code": 6018,
+      "code": 6019,
       "name": "InvalidSwapProgramId",
       "msg": "Invalid swap program ID"
     },
     {
-      "code": 6019,
+      "code": 6020,
       "name": "SwapNotSet",
       "msg": "Swap is not set for the current rewards"
     },
     {
-      "code": 6020,
+      "code": 6021,
       "name": "WhirlpoolLiquidityTooHigh",
       "msg": "whirlpool: Liquidity amount must be less than i64::MAX"
     },
     {
-      "code": 6021,
+      "code": 6022,
       "name": "WhirlpoolLiquidityToDeltasOverflow",
       "msg": "whirlpool: overflow while computing liquidity to token deltas"
     }
-  ],
-  "metadata": {
-    "address": "ECzqPRCK7S7jXeNWoc3QrYH6yWQkcQGpGR2RWqRQ9e9P"
-  }
+  ]
 }
