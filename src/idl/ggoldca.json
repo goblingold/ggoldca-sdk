@@ -763,7 +763,7 @@
       "accounts": [
         {
           "name": "vaultAccount",
-          "isMut": true,
+          "isMut": false,
           "isSigner": false
         },
         {
