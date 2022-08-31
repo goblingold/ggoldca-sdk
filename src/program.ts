@@ -91,6 +91,12 @@ interface SetMinSlotsForReinvestParams {
   minSlots: BN;
 }
 
+interface SetVaultPauseStatus {
+  userSigner: web3.PublicKey;
+  vaultId: VaultId;
+  isPaised: boolean;
+}
+
 interface SetVaultFeeParams {
   userSigner: web3.PublicKey;
   vaultId: VaultId;
@@ -621,6 +627,21 @@ export class GGoldcaSDK {
 
     return this.program.methods
       .setMinSlotsForReinvest(minSlots)
+      .accounts({
+        userSigner,
+        vaultAccount,
+      })
+      .instruction();
+  }
+
+  async setVaultPauseStatus(
+    params: setVaultPauseStatusParams
+  ): Promise<web3.TransactionInstruction> {
+    const { userSigner, vaultId, isPaused } = params;
+    const { vaultAccount } = await this.pdaAccounts.getVaultKeys(vaultId);
+
+    return this.program.methods
+      .setVaultPauseStatus(isPaused)
       .accounts({
         userSigner,
         vaultAccount,
