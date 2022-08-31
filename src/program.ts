@@ -45,6 +45,12 @@ interface OpenPositionParams {
   positionMint: web3.PublicKey;
 }
 
+interface ClosePositionParams {
+  userSigner: web3.PublicKey;
+  vaultId: VaultId;
+  position: web3.PublicKey;
+}
+
 interface DepositParams {
   lpAmount: BN;
   maxAmountA: BN;
@@ -284,6 +290,33 @@ export class GGoldcaSDK {
     if (tickUpperIx != null) ixs.push(tickUpperIx);
 
     return ixs;
+  }
+
+  async closePositionIx(
+    params: ClosePositionParams
+  ): Promise<web3.TransactionInstruction[]> {
+    const { userSigner, vaultId, position } = params;
+
+    const { vaultAccount } = await this.pdaAccounts.getVaultKeys(vaultId);
+    const positionData = await this.fetcher.getWhirlpoolPositionData(position);
+
+    const positionTokenAccount = await getAssociatedTokenAddress(
+      positionData.positionMint,
+      vaultAccount,
+      true
+    );
+
+    return this.program.methods
+      .closePosition()
+      .accounts({
+        userSigner,
+        vaultAccount,
+        whirlpoolProgramId: wh.ORCA_WHIRLPOOL_PROGRAM_ID,
+        position: position,
+        positionMint: positionData.positionMint,
+        positionTokenAccount,
+      })
+      .instruction();
   }
 
   async depositIx(params: DepositParams): Promise<web3.TransactionInstruction> {
