@@ -34,6 +34,7 @@ interface InitializeVaultParams {
   userSigner: web3.PublicKey;
   vaultId: VaultId;
   fee: BN;
+  minSlots: BN;
 }
 
 interface OpenPositionParams {
@@ -82,6 +83,12 @@ interface ConstructorParams {
   connection: web3.Connection;
   provider: Provider;
   programId?: web3.PublicKey;
+}
+
+interface SetMinSlotsForReinvestParams {
+  userSigner: web3.PublicKey;
+  vaultId: VaultId;
+  minSlots: BN;
 }
 
 interface SetVaultFeeParams {
@@ -137,7 +144,7 @@ export class GGoldcaSDK {
     const poolData = await this.fetcher.getWhirlpoolData(vaultId.whirlpool);
 
     const ix = await this.program.methods
-      .initializeVault(vaultId.id, params.fee)
+      .initializeVault(vaultId.id, params.fee, params.minSlots)
       .accounts({
         userSigner,
         whirlpool: vaultId.whirlpool,
@@ -604,6 +611,21 @@ export class GGoldcaSDK {
       slippageTolerance,
       whirlpool
     );
+  }
+
+  async setMinSlotsForReinvestIx(
+    params: SetMinSlotsForReinvestParams
+  ): Promise<web3.TransactionInstruction> {
+    const { userSigner, vaultId, minSlots } = params;
+    const { vaultAccount } = await this.pdaAccounts.getVaultKeys(vaultId);
+
+    return this.program.methods
+      .setMinSlotsForReinvest(minSlots)
+      .accounts({
+        userSigner,
+        vaultAccount,
+      })
+      .instruction();
   }
 
   async setVaultFee(
