@@ -74,6 +74,52 @@
         {
           "name": "fee",
           "type": "u64"
+        },
+        {
+          "name": "minSlotsForReinvest",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "setVaultPauseStatus",
+      "accounts": [
+        {
+          "name": "userSigner",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "vaultAccount",
+          "isMut": true,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "isPaused",
+          "type": "bool"
+        }
+      ]
+    },
+    {
+      "name": "setVaultUiStatus",
+      "accounts": [
+        {
+          "name": "userSigner",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "vaultAccount",
+          "isMut": true,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "isActive",
+          "type": "bool"
         }
       ]
     },
@@ -247,6 +293,27 @@
       "args": [
         {
           "name": "fee",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "setMinSlotsForReinvest",
+      "accounts": [
+        {
+          "name": "userSigner",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "vaultAccount",
+          "isMut": true,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "minSlots",
           "type": "u64"
         }
       ]
@@ -884,45 +951,103 @@
   "accounts": [
     {
       "name": "VaultAccount",
+      "docs": [
+        "Strategy vault account"
+      ],
       "type": {
         "kind": "struct",
         "fields": [
           {
             "name": "version",
+            "docs": [
+              "Vault version"
+            ],
             "type": "u8"
           },
           {
+            "name": "isActiveFromUi",
+            "docs": [
+              "The vault is active from the UI"
+            ],
+            "type": "bool"
+          },
+          {
+            "name": "isPaused",
+            "docs": [
+              "The smart contract is paused for this vault"
+            ],
+            "type": "bool"
+          },
+          {
             "name": "id",
+            "docs": [
+              "Vault number for a given whirlpool"
+            ],
             "type": "u8"
           },
           {
             "name": "bumps",
+            "docs": [
+              "PDA bump seeds"
+            ],
             "type": {
               "defined": "Bumps"
             }
           },
           {
             "name": "whirlpoolId",
+            "docs": [
+              "Whirlpool pubkey"
+            ],
             "type": "publicKey"
           },
           {
             "name": "inputTokenAMintPubkey",
+            "docs": [
+              "Pool input token_a mint address"
+            ],
             "type": "publicKey"
           },
           {
             "name": "inputTokenBMintPubkey",
+            "docs": [
+              "Pool input token_b mint address"
+            ],
             "type": "publicKey"
           },
           {
-            "name": "lastLiquidityIncrease",
-            "type": "u128"
-          },
-          {
             "name": "fee",
+            "docs": [
+              "Fee percentage using FEE_SCALE. Fee applied on earnings"
+            ],
             "type": "u64"
           },
           {
+            "name": "minSlotsForReinvest",
+            "docs": [
+              "Minimum number of elapsed slots required for reinvesting"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "lastReinvestmentSlot",
+            "docs": [
+              "Last reinvestment slot"
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "lastLiquidityIncrease",
+            "docs": [
+              "Last reinvestment liquidity increase"
+            ],
+            "type": "u128"
+          },
+          {
             "name": "earnedRewardsTokenA",
+            "docs": [
+              "Total rewards earned by the vault"
+            ],
             "type": "u64"
           },
           {
@@ -931,6 +1056,9 @@
           },
           {
             "name": "marketRewards",
+            "docs": [
+              "The market where to sell the rewards"
+            ],
             "type": {
               "array": [
                 {
@@ -941,20 +1069,26 @@
             }
           },
           {
+            "name": "positions",
+            "docs": [
+              "Information about the opened positions (max = MAX_POSITIONS)"
+            ],
+            "type": {
+              "vec": {
+                "defined": "PositionInfo"
+              }
+            }
+          },
+          {
             "name": "padding",
+            "docs": [
+              "Additional padding"
+            ],
             "type": {
               "array": [
                 "u64",
                 10
               ]
-            }
-          },
-          {
-            "name": "positions",
-            "type": {
-              "vec": {
-                "defined": "PositionInfo"
-              }
             }
           }
         ]
@@ -969,12 +1103,18 @@
         "fields": [
           {
             "name": "id",
+            "docs": [
+              "Id of market associated"
+            ],
             "type": {
               "defined": "MarketRewards"
             }
           },
           {
             "name": "minAmountOut",
+            "docs": [
+              "Minimum number of lamports to receive during swap"
+            ],
             "type": "u64"
           }
         ]
@@ -982,6 +1122,9 @@
     },
     {
       "name": "Bumps",
+      "docs": [
+        "PDA bump seeds"
+      ],
       "type": {
         "kind": "struct",
         "fields": [
@@ -998,19 +1141,31 @@
     },
     {
       "name": "PositionInfo",
+      "docs": [
+        "Position information"
+      ],
       "type": {
         "kind": "struct",
         "fields": [
           {
             "name": "pubkey",
+            "docs": [
+              "Position pubkey"
+            ],
             "type": "publicKey"
           },
           {
             "name": "lowerTick",
+            "docs": [
+              "Position lower tick"
+            ],
             "type": "i32"
           },
           {
             "name": "upperTick",
+            "docs": [
+              "Position upper tick"
+            ],
             "type": "i32"
           }
         ]
@@ -1023,20 +1178,32 @@
         "fields": [
           {
             "name": "id",
+            "docs": [
+              "Id of market associated"
+            ],
             "type": {
               "defined": "MarketRewards"
             }
           },
           {
             "name": "rewardsMint",
+            "docs": [
+              "Pubkey of the rewards token mint"
+            ],
             "type": "publicKey"
           },
           {
             "name": "destinationTokenAccount",
+            "docs": [
+              "Destination account"
+            ],
             "type": "publicKey"
           },
           {
             "name": "minAmountOut",
+            "docs": [
+              "Minimum number of lamports to receive during swap"
+            ],
             "type": "u64"
           }
         ]
@@ -1181,6 +1348,11 @@
           "name": "liquidityIncrease",
           "type": "u128",
           "index": false
+        },
+        {
+          "name": "elapsedSlots",
+          "type": "u64",
+          "index": false
         }
       ]
     },
@@ -1253,108 +1425,126 @@
     },
     {
       "code": 6007,
+      "name": "PausedSmartContract",
+      "msg": "The smart contract is paused"
+    },
+    {
+      "code": 6008,
+      "name": "PausedVault",
+      "msg": "The provided vault is paused"
+    },
+    {
+      "code": 6009,
+      "name": "NotEnoughSlots",
+      "msg": "Not enough elapsed slots since last call"
+    },
+    {
+      "code": 6010,
       "name": "InvalidFee",
       "msg": "Fee cannot exceed FEE_SCALE"
     },
     {
-      "code": 6008,
+      "code": 6011,
       "name": "MarketInvalidDestination",
       "msg": "Market rewards input invalid destination account mint"
     },
     {
-      "code": 6009,
+      "code": 6012,
       "name": "MarketInvalidMint",
       "msg": "Market rewards input tokens not allowed"
     },
     {
-      "code": 6010,
+      "code": 6013,
       "name": "MarketInvalidZeroAmount",
       "msg": "Market rewards input zero min_amount_out not allowed"
     },
     {
-      "code": 6011,
+      "code": 6014,
       "name": "ZeroLpAmount",
       "msg": "LP amount must be greater than zero"
     },
     {
-      "code": 6012,
+      "code": 6015,
       "name": "ExceededTokenMax",
       "msg": "Exceeded token max"
     },
     {
-      "code": 6013,
+      "code": 6016,
       "name": "InvalidDestinationAccount",
       "msg": "Invalid destination token account"
     },
     {
-      "code": 6014,
+      "code": 6017,
       "name": "InvalidInputMint",
       "msg": "Invalid input token mint pubkey"
     },
     {
-      "code": 6015,
+      "code": 6018,
       "name": "InvalidRewardMint",
       "msg": "Invalid reward token mint pubkey"
     },
     {
-      "code": 6016,
+      "code": 6019,
       "name": "PositionAlreadyOpened",
       "msg": "Position already opened"
     },
     {
-      "code": 6017,
+      "code": 6020,
       "name": "PositionLimitReached",
       "msg": "Position limit reached"
     },
     {
-      "code": 6018,
+      "code": 6021,
       "name": "PositionNotActive",
       "msg": "Position is not active"
     },
     {
-      "code": 6019,
+      "code": 6022,
       "name": "PositionNonExistence",
       "msg": "Position does not exist"
     },
     {
-      "code": 6020,
+      "code": 6023,
       "name": "NotEnoughFees",
       "msg": "Not enough fees generated yet"
     },
     {
-      "code": 6021,
+      "code": 6024,
       "name": "NotEnoughRewards",
       "msg": "Not enough rewards generated yet"
     },
     {
-      "code": 6022,
+      "code": 6025,
       "name": "InvalidNumberOfAccounts",
       "msg": "Invalid number of accounts"
     },
     {
-      "code": 6023,
+      "code": 6026,
       "name": "SwapNotSet",
       "msg": "Swap is not set for the current rewards"
     },
     {
-      "code": 6024,
+      "code": 6027,
       "name": "SwapInvalidProgramId",
       "msg": "Invalid swap program ID"
     },
     {
-      "code": 6025,
+      "code": 6028,
       "name": "TransferNotSet",
       "msg": "Transfer is not set for the current rewards"
     },
     {
-      "code": 6026,
+      "code": 6029,
       "name": "WhirlpoolLiquidityTooHigh",
       "msg": "whirlpool_cpi: Liquidity amount must be less than i64::MAX"
     },
     {
-      "code": 6027,
+      "code": 6030,
       "name": "WhirlpoolLiquidityToDeltasOverflow",
       "msg": "whirlpool_cpi: Overflow while computing liquidity to token deltas"
     }
-  ]
+  ],
+  "metadata": {
+    "address": "NAZAREQQuCnkV8CpkGZaoB6ccmvikM8uRr4GKPWwmPT"
+  }
 }
