@@ -24,11 +24,20 @@ export async function swapRewardsAccounts(
   fetcher: Fetcher
 ): Promise<SwapAccounts[]> {
   switch (whirlpool.toString()) {
+    case Pools.SOL_mSOL:
+      return [
+        getOrcaSwapAccounts(mintKeys[0], OrcaPoolConfig.ORCA_SOL),
+        getOrcaSwapAccounts(mintKeys[1], OrcaPoolConfig.MNDE_mSOL),
+      ];
+
     case Pools.USDH_USDC:
       return [
         getOrcaSwapAccounts(mintKeys[0], OrcaPoolConfig.HBB_USDC),
         getOrcaSwapAccounts(mintKeys[1], OrcaPoolConfig.ORCA_USDC),
       ];
+
+    case Pools.USDT_USDC:
+      return [getOrcaSwapAccounts(mintKeys[0], OrcaPoolConfig.ORCA_USDC)];
 
     case Pools.USH_USDC:
       return [
