@@ -294,7 +294,7 @@ export class GGoldcaSDK {
 
   async closePositionIx(
     params: ClosePositionParams
-  ): Promise<web3.TransactionInstruction[]> {
+  ): Promise<web3.TransactionInstruction> {
     const { userSigner, vaultId, position } = params;
 
     const { vaultAccount } = await this.pdaAccounts.getVaultKeys(vaultId);
