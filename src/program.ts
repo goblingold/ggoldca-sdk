@@ -27,7 +27,7 @@ const DAO_TREASURY_PUBKEY = new web3.PublicKey(
 );
 
 const PROGRAM_ID = new web3.PublicKey(
-  "ECzqPRCK7S7jXeNWoc3QrYH6yWQkcQGpGR2RWqRQ9e9P"
+  "NAZAREQQuCnkV8CpkGZaoB6ccmvikM8uRr4GKPWwmPT"
 );
 
 interface InitializeVaultParams {
