@@ -100,7 +100,7 @@ interface SetMinSlotsForReinvestParams {
 interface SetVaultUiStatusParams {
   userSigner: web3.PublicKey;
   vaultId: VaultId;
-  isPaused: boolean;
+  isActive: boolean;
 }
 
 interface SetVaultPauseStatusParams {
