@@ -673,7 +673,7 @@ export class GGoldcaSDK {
       .instruction();
   }
 
-  async setVaultUiStatus(
+  async setVaultUiStatusIx(
     params: SetVaultUiStatusParams
   ): Promise<web3.TransactionInstruction> {
     const { userSigner, vaultId, isPaused } = params;
