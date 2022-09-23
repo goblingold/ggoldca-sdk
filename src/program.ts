@@ -51,6 +51,12 @@ interface ClosePositionParams {
   position: web3.PublicKey;
 }
 
+interface RebalanceParams {
+  userSigner: web3.PublicKey;
+  vaultId: VaultId;
+  newPosition: web3.PublicKey;
+}
+
 interface DepositParams {
   lpAmount: BN;
   maxAmountA: BN;
@@ -323,6 +329,37 @@ export class GGoldcaSDK {
         positionTokenAccount,
       })
       .instruction();
+  }
+
+  async rebalanceIx(
+    params: RebalanceParams
+  ): Promise<web3.TransactionInstruction> {
+    const { userSigner, vaultId, newPosition } = params;
+
+    const [
+      poolData,
+      currentPosition,
+      { vaultAccount, vaultInputTokenAAccount, vaultInputTokenBAccount },
+    ] = await Promise.all([
+      this.fetcher.getWhirlpoolData(vaultId.whirlpool),
+      this.pdaAccounts.getActivePosition(vaultId),
+      this.pdaAccounts.getVaultKeys(vaultId),
+    ]);
+
+    return this.program.methods
+      .rebalance()
+      .accounts({
+        userSigner,
+        vaultAccount,
+        vaultInputTokenAAccount,
+        vaultInputTokenBAccount,
+        whirlpoolProgramId: wh.ORCA_WHIRLPOOL_PROGRAM_ID,
+        tokenVaultA: poolData.tokenVaultA,
+        tokenVaultB: poolData.tokenVaultB,
+        currentPosition,
+        newPosition,
+      })
+      .transaction();
   }
 
   async depositIx(params: DepositParams): Promise<web3.TransactionInstruction> {
@@ -676,11 +713,11 @@ export class GGoldcaSDK {
   async setVaultUiStatusIx(
     params: SetVaultUiStatusParams
   ): Promise<web3.TransactionInstruction> {
-    const { userSigner, vaultId, isPaused } = params;
+    const { userSigner, vaultId, isActive } = params;
     const { vaultAccount } = await this.pdaAccounts.getVaultKeys(vaultId);
 
     return this.program.methods
-      .setVaultUiStatus(isPaused)
+      .setVaultUiStatus(isActive)
       .accounts({
         userSigner,
         vaultAccount,
