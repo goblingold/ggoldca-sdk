@@ -346,6 +346,11 @@ export class GGoldcaSDK {
       this.pdaAccounts.getVaultKeys(vaultId),
     ]);
 
+    const [currentPositionAccounts, newPositionAccounts] = await Promise.all([
+      this.pdaAccounts.getPositionAccounts(currentPosition, vaultId),
+      this.pdaAccounts.getPositionAccounts(newPosition, vaultId),
+    ]);
+
     return this.program.methods
       .rebalance()
       .accounts({
@@ -356,8 +361,8 @@ export class GGoldcaSDK {
         whirlpoolProgramId: wh.ORCA_WHIRLPOOL_PROGRAM_ID,
         tokenVaultA: poolData.tokenVaultA,
         tokenVaultB: poolData.tokenVaultB,
-        currentPosition,
-        newPosition,
+        currentPosition: currentPositionAccounts,
+        newPosition: newPositionAccounts,
       })
       .transaction();
   }
