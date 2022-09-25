@@ -454,7 +454,7 @@ export class GGoldcaSDK {
     ]);
 
     const rewardInfos = poolData.rewardInfos.filter(
-      (info) => info.mint.toString() !== web3.PublicKey.default.toString()
+      (info) => !info.emissionsPerSecondX64.eq(new BN(0))
     );
 
     const vaultRewardsTokenAccounts = await Promise.all(
