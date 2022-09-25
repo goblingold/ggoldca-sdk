@@ -89,6 +89,7 @@ interface SellRewardsParams {
 
 interface ReinvestParams {
   vaultId: VaultId;
+  position?: web3.PublicKey;
 }
 
 interface ConstructorParams {
@@ -533,33 +534,42 @@ export class GGoldcaSDK {
       this.fetcher
     );
 
-    const vaultRewardsTokenAccounts = await Promise.all(
-      rewardMints.map(async (mint) =>
-        getAssociatedTokenAddress(mint, vaultAccount, true)
-      )
-    );
+    // no swap available
+    if (swapAccounts.length == 0) {
+      return [];
+    } else {
+      const vaultRewardsTokenAccounts = await Promise.all(
+        rewardMints.map(async (mint) =>
+          getAssociatedTokenAddress(mint, vaultAccount, true)
+        )
+      );
 
-    const vaultDestinationTokenAccounts = await Promise.all(
-      swapAccounts.map(async (swap) =>
-        getAssociatedTokenAddress(swap.destinationTokenMint, vaultAccount, true)
-      )
-    );
-
-    return await Promise.all(
-      swapAccounts.map(async (swap, indx) =>
-        this.program.methods
-          .swapRewards()
-          .accounts({
+      const vaultDestinationTokenAccounts = await Promise.all(
+        swapAccounts.map(async (swap) =>
+          getAssociatedTokenAddress(
+            swap.destinationTokenMint,
             vaultAccount,
-            vaultRewardsTokenAccount: vaultRewardsTokenAccounts[indx],
-            vaultDestinationTokenAccount: vaultDestinationTokenAccounts[indx],
-            tokenProgram: TOKEN_PROGRAM_ID,
-            swapProgram: swap.programId,
-          })
-          .remainingAccounts(swap.metas)
-          .instruction()
-      )
-    );
+            true
+          )
+        )
+      );
+
+      return await Promise.all(
+        swapAccounts.map(async (swap, indx) =>
+          this.program.methods
+            .swapRewards()
+            .accounts({
+              vaultAccount,
+              vaultRewardsTokenAccount: vaultRewardsTokenAccounts[indx],
+              vaultDestinationTokenAccount: vaultDestinationTokenAccounts[indx],
+              tokenProgram: TOKEN_PROGRAM_ID,
+              swapProgram: swap.programId,
+            })
+            .remainingAccounts(swap.metas)
+            .instruction()
+        )
+      );
+    }
   }
 
   async reinvestIx(
@@ -567,23 +577,21 @@ export class GGoldcaSDK {
   ): Promise<web3.TransactionInstruction> {
     const { vaultId } = params;
 
+    const position =
+      params.position ?? (await this.pdaAccounts.getActivePosition(vaultId));
+
     const [
-      position,
       {
         vaultAccount,
         vaultLpTokenMintPubkey,
         vaultInputTokenAAccount,
         vaultInputTokenBAccount,
       },
+      positionAccounts,
     ] = await Promise.all([
-      this.pdaAccounts.getActivePosition(vaultId),
       this.pdaAccounts.getVaultKeys(vaultId),
+      this.pdaAccounts.getPositionAccounts(position, vaultId),
     ]);
-
-    const positionAccounts = await this.pdaAccounts.getPositionAccounts(
-      position,
-      vaultId
-    );
 
     const oracleKeypair = wh.PDAUtil.getOracle(
       wh.ORCA_WHIRLPOOL_PROGRAM_ID,

@@ -30,6 +30,12 @@ export async function swapRewardsAccounts(
         getOrcaSwapAccounts(mintKeys[1], OrcaPoolConfig.MNDE_mSOL),
       ];
 
+    case Pools.mSOL_USDC:
+      return [
+        getOrcaSwapAccounts(mintKeys[0], OrcaPoolConfig.ORCA_SOL),
+        getOrcaSwapAccounts(mintKeys[1], OrcaPoolConfig.MNDE_mSOL),
+      ];
+
     case Pools.USDH_USDC:
       return [
         getOrcaSwapAccounts(mintKeys[0], OrcaPoolConfig.HBB_USDC),
@@ -50,7 +56,7 @@ export async function swapRewardsAccounts(
       ];
 
     default:
-      throw new Error("unset swap pools for " + whirlpool);
+      return [];
   }
 }
 
