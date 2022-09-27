@@ -9,4 +9,5 @@ export enum Pools {
   USH_USDT = "3K92dMW5CNKa6ShbJtWHicBQrMHujWLGwHWDHWJvqesi",
   UXD_USDC = "GLNvG5Ly4cK512oQeJqnwLftwfoPZ4skyDwZWzxorYQ9",
   whETH_USDC = "E5KuHFnU2VuuZFKeghbTLazgxeni4dhQ7URE4oBtJju2",
+  SOL_UXD = "2HtfXbKo531ghGgFYzcnJQJ9GNKAdeEJBbMgfF2zagQK",
 }

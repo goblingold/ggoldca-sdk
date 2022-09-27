@@ -55,6 +55,9 @@ export async function swapRewardsAccounts(
         getOrcaSwapAccounts(mintKeys[1], OrcaPoolConfig.ORCA_USDC),
       ];
 
+    case Pools.UXD_USDC:
+      return [getOrcaSwapAccounts(mintKeys[0], OrcaPoolConfig.ORCA_USDC)];
+
     default:
       return [];
   }
