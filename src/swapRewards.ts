@@ -2,7 +2,7 @@ import { ORCA_TOKEN_SWAP_ID, OrcaPoolConfig, getOrca } from "@orca-so/sdk";
 import {
   ORCA_WHIRLPOOL_PROGRAM_ID,
   PDAUtil,
-  PoolUtil,
+  SwapUtils,
 } from "@orca-so/whirlpools-sdk";
 import { web3 } from "@project-serum/anchor";
 import { Fetcher } from "./fetcher";
@@ -136,7 +136,7 @@ async function getWhirlpoolSwapAccounts(
     isAtoB = false;
   }
 
-  const tickArrayAddresses = PoolUtil.getTickArrayPublicKeysForSwap(
+  const tickArrayAddresses = SwapUtils.getTickArrayPublicKeys(
     pool.tickCurrentIndex,
     pool.tickSpacing,
     isAtoB,
