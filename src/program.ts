@@ -626,7 +626,7 @@ export class GGoldcaSDK {
       vaultTokenBData.amount
     );
 
-    const tickArrayAddresses = wh.PoolUtil.getTickArrayPublicKeysForSwap(
+    const tickArrayAddresses = wh.SwapUtils.getTickArrayPublicKeys(
       poolData.tickCurrentIndex,
       poolData.tickSpacing,
       isAtoB,
