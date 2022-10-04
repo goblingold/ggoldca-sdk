@@ -634,16 +634,16 @@ export class GGoldcaSDK {
       positionAccounts.whirlpool
     );
 
-    // Ugly Fix
-    // TODO Check with Orca why this is happening
     let tickArray0 = tickArrayAddresses[0];
     let tickArray1 = tickArrayAddresses[1];
     let tickArray2 = tickArrayAddresses[2];
-    if (vaultId.whirlpool.toString() == Pools.USDC_USDT) {
-      tickArray0 = tickArrayAddresses[1];
-      tickArray1 = tickArrayAddresses[0];
-      tickArray2 = tickArrayAddresses[2];
-    }
+    // Ugly Fix
+    // TODO Check with Orca why this is happening
+    // if (vaultId.whirlpool.toString() == Pools.USDC_USDT) {
+    //   tickArray0 = tickArrayAddresses[1];
+    //   tickArray1 = tickArrayAddresses[0];
+    //   tickArray2 = tickArrayAddresses[2];
+    // }
     return this.program.methods
       .reinvest()
       .accounts({

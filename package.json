@@ -1,6 +1,6 @@
 {
   "name": "ggoldca-sdk",
-  "version": "0.0.27",
+  "version": "0.0.29",
   "description": "GoblinGold ggoldca TypeScript Client Library",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
