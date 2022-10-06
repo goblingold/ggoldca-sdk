@@ -1,11 +1,8 @@
 import { ORCA_TOKEN_SWAP_ID, OrcaPoolConfig, getOrca } from "@orca-so/sdk";
-import {
-  ORCA_WHIRLPOOL_PROGRAM_ID,
-  PDAUtil,
-  SwapUtils,
-} from "@orca-so/whirlpools-sdk";
+import { ORCA_WHIRLPOOL_PROGRAM_ID, PDAUtil } from "@orca-so/whirlpools-sdk";
 import { web3 } from "@project-serum/anchor";
 import { Fetcher } from "./fetcher";
+import { getTickArrayPublicKeysWithShift } from "./getTickArrayPublicKeysWithShift";
 import { Pools } from "./pools";
 
 enum SwapWhirlpools {
@@ -136,7 +133,7 @@ async function getWhirlpoolSwapAccounts(
     isAtoB = false;
   }
 
-  const tickArrayAddresses = SwapUtils.getTickArrayPublicKeys(
+  const tickArrayAddresses = getTickArrayPublicKeysWithShift(
     pool.tickCurrentIndex,
     pool.tickSpacing,
     isAtoB,
