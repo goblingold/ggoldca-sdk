@@ -21,12 +21,18 @@ export function isSwapAtoB(
     false
   );
 
-  const amountA = new Decimal(vaultAmountA.toString());
-  const amountB = new Decimal(vaultAmountB.toString());
-  const decimalA = new Decimal(tokenA.toString());
-  const decimalB = new Decimal(tokenB.toString());
+  if (tokenA.isZero()) {
+    return true;
+  } else if (tokenB.isZero()) {
+    return false;
+  } else {
+    const amountA = new Decimal(vaultAmountA.toString());
+    const amountB = new Decimal(vaultAmountB.toString());
+    const decimalA = new Decimal(tokenA.toString());
+    const decimalB = new Decimal(tokenB.toString());
 
-  const ratio = decimalA.div(decimalB);
+    const ratio = decimalA.div(decimalB);
 
-  return amountA.gt(ratio.mul(amountB));
+    return amountA.gt(ratio.mul(amountB));
+  }
 }
