@@ -53,23 +53,30 @@ export class PDAAccounts {
     this.programId = programId;
   }
 
+  getVaultAccountPubkey(vaultId: VaultId): web3.PublicKey {
+    return web3.PublicKey.findProgramAddressSync(
+      [
+        Buffer.from("vault"),
+        vaultId.id.toBuffer("le", 1),
+        vaultId.whirlpool.toBuffer(),
+      ],
+      this.programId
+    )[0];
+  }
+
+  getVaultLpTokenMintPubkey(vaultAccount: web3.PublicKey): web3.PublicKey {
+    return web3.PublicKey.findProgramAddressSync(
+      [Buffer.from("mint"), vaultAccount.toBuffer()],
+      this.programId
+    )[0];
+  }
+
   async getVaultKeys(vaultId: VaultId): Promise<VaultKeys> {
     const key = vaultId.whirlpool.toString() + vaultId.id.toString();
     if (!this.cached[key]) {
-      const [vaultAccount, _bumpVault] = web3.PublicKey.findProgramAddressSync(
-        [
-          Buffer.from("vault"),
-          vaultId.id.toBuffer("le", 1),
-          vaultId.whirlpool.toBuffer(),
-        ],
-        this.programId
-      );
-
-      const [vaultLpTokenMintPubkey, _bumpLp] =
-        web3.PublicKey.findProgramAddressSync(
-          [Buffer.from("mint"), vaultAccount.toBuffer()],
-          this.programId
-        );
+      const vaultAccount = this.getVaultAccountPubkey(vaultId);
+      const vaultLpTokenMintPubkey =
+        this.getVaultLpTokenMintPubkey(vaultAccount);
 
       const poolData = await this.fetcher.getWhirlpoolData(vaultId.whirlpool);
       const [vaultInputTokenAAccount, vaultInputTokenBAccount] =
