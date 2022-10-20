@@ -333,17 +333,20 @@ export class GGoldcaSDK {
       .instruction();
   }
 
-  async rebalanceIx(
+  async rebalanceIxs(
     params: RebalanceParams
-  ): Promise<web3.TransactionInstruction> {
+  ): Promise<web3.TransactionInstruction[]> {
     const { userSigner, vaultId, newPosition } = params;
 
     const [
-      poolData,
       currentPosition,
-      { vaultAccount, vaultInputTokenAAccount, vaultInputTokenBAccount },
+      {
+        vaultAccount,
+        vaultLpTokenMintPubkey,
+        vaultInputTokenAAccount,
+        vaultInputTokenBAccount,
+      },
     ] = await Promise.all([
-      this.fetcher.getWhirlpoolData(vaultId.whirlpool),
       this.pdaAccounts.getActivePosition(vaultId),
       this.pdaAccounts.getVaultKeys(vaultId),
     ]);
@@ -353,20 +356,85 @@ export class GGoldcaSDK {
       this.pdaAccounts.getPositionAccounts(newPosition, vaultId),
     ]);
 
-    return this.program.methods
-      .rebalance()
-      .accounts({
-        userSigner,
-        vaultAccount,
+    await this.fetcher.save(
+      [
+        vaultId.whirlpool,
+        currentPosition,
+        newPosition,
         vaultInputTokenAAccount,
         vaultInputTokenBAccount,
-        whirlpoolProgramId: wh.ORCA_WHIRLPOOL_PROGRAM_ID,
-        tokenVaultA: poolData.tokenVaultA,
-        tokenVaultB: poolData.tokenVaultB,
-        currentPosition: currentPositionAccounts,
-        newPosition: newPositionAccounts,
-      })
-      .transaction();
+      ],
+      true
+    );
+
+    const [poolData, newPositionData, vaultTokenAData, vaultTokenBData] =
+      await Promise.all([
+        this.fetcher.getWhirlpoolData(vaultId.whirlpool),
+        this.fetcher.getWhirlpoolPositionData(newPosition),
+        this.fetcher.getAccount(vaultInputTokenAAccount),
+        this.fetcher.getAccount(vaultInputTokenBAccount),
+      ]);
+
+    const isAtoB = isSwapAtoB(
+      poolData.sqrtPrice,
+      // The liquidity is only used for estimating the ratio token_A/token_B
+      // in the whirpool, but as those amounts have a linear depenence with L,
+      // any value can be used here
+      new BN(1_000_000_000),
+      newPositionData.tickLowerIndex,
+      newPositionData.tickUpperIndex,
+      vaultTokenAData.amount,
+      vaultTokenBData.amount
+    );
+
+    const tickArrayAddresses = getTickArrayPublicKeysWithShift(
+      poolData.tickCurrentIndex,
+      poolData.tickSpacing,
+      isAtoB,
+      wh.ORCA_WHIRLPOOL_PROGRAM_ID,
+      newPositionAccounts.whirlpool
+    );
+
+    const oracleKeypair = wh.PDAUtil.getOracle(
+      wh.ORCA_WHIRLPOOL_PROGRAM_ID,
+      vaultId.whirlpool
+    );
+
+    return Promise.all([
+      this.program.methods
+        .rebalance()
+        .accounts({
+          userSigner,
+          vaultAccount,
+          vaultInputTokenAAccount,
+          vaultInputTokenBAccount,
+          whirlpoolProgramId: wh.ORCA_WHIRLPOOL_PROGRAM_ID,
+          tokenVaultA: poolData.tokenVaultA,
+          tokenVaultB: poolData.tokenVaultB,
+          currentPosition: currentPositionAccounts,
+          newPosition: newPositionAccounts,
+          instructionsAcc: web3.SYSVAR_INSTRUCTIONS_PUBKEY,
+        })
+        .transaction(),
+
+      this.program.methods
+        .reinvest()
+        .accounts({
+          vaultAccount,
+          whirlpoolProgramId: wh.ORCA_WHIRLPOOL_PROGRAM_ID,
+          vaultLpTokenMintPubkey,
+          vaultInputTokenAAccount,
+          vaultInputTokenBAccount,
+          tokenVaultA: poolData.tokenVaultA,
+          tokenVaultB: poolData.tokenVaultB,
+          position: newPositionAccounts,
+          tickArray0: tickArrayAddresses[0],
+          tickArray1: tickArrayAddresses[1],
+          tickArray2: tickArrayAddresses[2],
+          oracle: oracleKeypair.publicKey,
+        })
+        .transaction(),
+    ]);
   }
 
   async depositIx(params: DepositParams): Promise<web3.TransactionInstruction> {
